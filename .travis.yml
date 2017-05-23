@@ -13,7 +13,7 @@ before_script:
 - pip install commonconf
 - pip install python-coveralls
 script:
-- pep8 --exclude=uw_birdge/tests uw_birdge
+- pep8 uw_birdge/ --exclude=tests
 - coverage run uw_birdge/test.py -v
 after_script:
 - coveralls
