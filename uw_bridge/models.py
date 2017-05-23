@@ -3,7 +3,6 @@ from restclients_core import models
 
 
 class BridgeCustomField(models.Model):
-    REGID_FIELD_ID = "5"
     REGID_NAME = "regid"
 
     value_id = models.CharField(max_length=10, null=True, default=None)
