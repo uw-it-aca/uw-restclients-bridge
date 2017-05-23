@@ -1,0 +1,32 @@
+sudo: false
+language: python
+python:
+- '2.7'
+- '3.4'
+- '3.5'
+- '3.6'
+before_script:
+- pip install -e .
+- pip install pep8
+- pip install nose2
+- pip install coverage
+- pip install commonconf
+- pip install python-coveralls
+script:
+- pep8 --exclude=uw_birdge/tests uw_birdge
+- coverage run uw_birdge/test.py -v
+after_script:
+- coveralls
+before_deploy:
+- find uw_birdge/ -name \*.pyc -exec rm {} \;
+- echo $TRAVIS_TAG > uw_birdge/VERSION
+deploy:
+  provider: pypi
+  server: https://pypi.python.org/pypi
+  user: uw-it-aca
+  skip_cleanup: true
+  password:
+    secure: 
+  on:
+    tags: true
+    python: '3.5'
