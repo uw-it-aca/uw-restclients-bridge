@@ -4,7 +4,6 @@ Contains Bridge DAO implementations.
 
 import logging
 import os
-import base64
 from os.path import abspath, dirname
 from restclients_core.dao import DAO
 
@@ -25,8 +24,7 @@ class Bridge_DAO(DAO):
             self.get_service_setting("BASIC_AUTH_SECRET", ""))
 
     def _custom_headers(self, method, url, headers, body):
-        basic_auth_value = base64.urlsafe_b64encode(self._get_basic_auth())
-        headers["Authorization"] = "Basic %s" % basic_auth_value
+        headers["Authorization"] = "Basic %s" % self._get_basic_auth()
         return headers
 
     def _edit_mock_response(self, method, url, headers, body, response):
