@@ -36,3 +36,6 @@ class Bridge_DAO(DAO):
             response.status = new_resp.status
             response.data = new_resp.data
             logger.debug("%s ==> %s", alternative_url, response.status)
+
+    def is_mock(self):
+        return self.get_implementation().is_mock()
