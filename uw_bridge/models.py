@@ -32,9 +32,6 @@ class BridgeCustomField(models.Model):
         data["name"] = self.name
         return json.dumps(data)
 
-    class Meta:
-        db_table = "restclients_bridge_custom_field"
-
 
 class BridgeUser(models.Model):
     bridge_id = models.IntegerField(default=0)
@@ -137,9 +134,6 @@ class BridgeUser(models.Model):
         self.custom_fields = []
         self.roles = []
 
-    class Meta:
-        db_table = "restclients_bridge_user"
-
 
 class BridgeUserRole(models.Model):
     role_id = models.CharField(max_length=64)
@@ -158,6 +152,3 @@ class BridgeUserRole(models.Model):
 
     def __str__(self):
         return json.dumps(self.to_json())
-
-    class Meta:
-        db_table = "restclients_bridge_user_role"
