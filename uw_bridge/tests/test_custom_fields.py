@@ -13,9 +13,9 @@ class TestBridgeCustomFields(TestCase):
         bcf = fields[0]
         self.assertEqual(bcf.field_id, "5")
         self.assertTrue(bcf.is_regid())
-        self.assertEqual(
-            str(bcf),
-            '{"name": "REGID", "value": null, "custom_field_id": "5"}')
+        self.assertIsNone(bcf.value)
+        self.assertIsNone(bcf.value_id)
+        self.assertIsNotNone(str(bcf))
 
     def test_get_regid_field_id(self):
         self.assertEqual(get_regid_field_id(), "5")
@@ -27,7 +27,6 @@ class TestBridgeCustomFields(TestCase):
         self.assertEqual(cf.value, regid)
         self.assertIsNone(cf.value_id)
         self.assertTrue(cf.is_regid())
-        self.assertEqual(
-            str(cf),
-            ('{"name": "regid", "value": "12345678901234567890123456789012",'
-             ' "custom_field_id": "5"}'))
+        self.assertEqual(cf.to_json(),
+                         {'value': '12345678901234567890123456789012',
+                          'custom_field_id': '5'})
