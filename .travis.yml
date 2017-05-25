@@ -22,11 +22,11 @@ before_deploy:
 - echo $TRAVIS_TAG > uw_bridge/VERSION
 deploy:
   provider: pypi
-  server: https://pypi.python.org/pypi
-  user: uw-it-aca
+  server: https://testpypi.python.org/pypi
+  user: uw-it-axdd
   skip_cleanup: true
   password:
-    secure: 
+    secure: ...
   on:
     tags: true
-    python: '3.5'
+    condition: $TRAVIS_PYTHON_VERSION = "2.7"
