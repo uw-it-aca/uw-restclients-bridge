@@ -26,7 +26,7 @@ deploy:
   user: uw-it-axdd
   skip_cleanup: true
   password:
-    secure: ...
+    secure: RC+unmUZN2T4HNBHzgWPeXXyyz4/k0WJJgoeJt+clXphc2x04KFWSfHkbiZh0b0j7AwmGy0TJH8UO0h8XrRElC0GPQkrfd/rYRBnoyZWK5IvPP0/yqmSWRwuABPa3eHfoVLaR7D94GWOCcnjwTQhRd0KrWy2Um8uFuGeqiAV/nkAME1Tv2FqLvgbc2Px23xQRLvyHQImdiSVThD2GiOkJ04LGMMJaswVA2oVrrmtljPp0eypCg2mSrsJ/2uw3go9U2Wi1GaLkvdbLX/JaKQhKqfyeHqY+yxZm3sdxCbwMjhGASMVFESeLEgRjeMlBkgHW9pjCHZbFtGyOpCF/OUbbZ0XIVAIWZLYZCsAunkKmpae+0r0JDCHIUEy/VDFdXSF1RiQ+5mVVBmXNRczxmzcOpt0GiyBQH2cZ4W0KFpXOG7mgWbCHnvvLGHbGiH88AeeYseDiipCNhU5y4FLnI9aXX0d6hAb3DiLsKnGE3P4FYjgKhpZfMMnJyKuyEwEBthhoXMVIgF0tRUNi39fVwwloDjI43n5i6xsy2Ofzr4vl6LlYADHqljcXjUJ2KLGT/OljpC5QrxgSzEw57/plHs7Dl/n0Ro2xq2UKsqhnaJCJxyawzDQJWV3EUGF0CXC9VXg/17SJfYGr+3HZF2cAHFyxceqvvzojm0F17Xj81QY6j8=
   on:
     tags: true
     condition: $TRAVIS_PYTHON_VERSION = "2.7"
