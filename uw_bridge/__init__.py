@@ -10,6 +10,7 @@ from uw_bridge.dao import Bridge_DAO
 
 
 logger = logging.getLogger(__name__)
+DAO = Bridge_DAO()
 DHEADER = {"Content-Type": "application/json",
            'Accept': 'application/json'}
 GHEADER = {'Accept': 'application/json'}
@@ -19,7 +20,7 @@ PHEADER = {"Content-Type": "application/json",
 
 
 def delete_resource(url):
-    response = Bridge_DAO().deleteURL(url, DHEADER)
+    response = DAO.deleteURL(url, DHEADER)
     log_data = "DELETE %s ==status==> %s" % (url, response.status)
 
     if response.status != 204:
@@ -31,7 +32,7 @@ def delete_resource(url):
 
 
 def get_resource(url):
-    response = Bridge_DAO().getURL(url, GHEADER)
+    response = DAO.getURL(url, GHEADER)
     log_data = "GET %s ==status==> %s" % (url, response.status)
 
     if response.status != 200:
@@ -46,7 +47,7 @@ def patch_resource(url, body):
     Patch resource with the given json body
     :returns: http response data
     """
-    response = Bridge_DAO().patchURL(url, PHEADER, body)
+    response = DAO.patchURL(url, PHEADER, body)
     log_data = "PATCH %s %s ==status==> %s" % (url, body, response.status)
 
     if response.status != 200:
@@ -61,7 +62,7 @@ def post_resource(url, body):
     Post resource with the given json body
     :returns: http response data
     """
-    response = Bridge_DAO().postURL(url, PHEADER, body)
+    response = DAO.postURL(url, PHEADER, body)
     log_data = "POST %s %s ==status==> %s" % (url, body, response.status)
 
     if response.status != 200 and response.status != 201:
@@ -78,7 +79,7 @@ def put_resource(url, body):
     :returns: http response data
     Bridge PUT seems to have the same effect as PATCH currently.
     """
-    response = Bridge_DAO().putURL(url, PHEADER, body)
+    response = DAO.putURL(url, PHEADER, body)
     log_data = "PUT %s %s ==status==> %s" % (url, body, response.status)
 
     if response.status != 200:
