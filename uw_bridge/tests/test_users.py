@@ -107,6 +107,7 @@ class TestBridgeUser(TestCase):
         self.assertEqual(user.sortable_name, "Teacher, Bill Average")
         self.assertEqual(user.email, "bill@u.washington.edu")
         self.assertEqual(user.netid, "bill")
+        self.assertTrue(user.is_manager)
         self.assertEqual(user.get_uid(), "bill@uw.edu")
         cus_field = user.custom_fields[0]
         self.assertEqual(cus_field.value,
