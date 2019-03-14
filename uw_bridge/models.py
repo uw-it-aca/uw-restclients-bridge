@@ -51,7 +51,7 @@ class BridgeUser(models.Model):
     completed_courses_count = models.IntegerField(default=-1)
 
     def get_uid(self):
-        return "%s@uw.edu" % self.netid
+        return "{}@uw.edu".format(self.netid)
 
     def has_course_summary(self):
         try:

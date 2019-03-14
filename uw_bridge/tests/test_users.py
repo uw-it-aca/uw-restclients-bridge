@@ -76,13 +76,13 @@ class TestBridgeUser(TestCase):
 
         user_list = get_user('bill', include_course_summary=True)
         self.verify_bill(user_list)
+
         user_list = get_user_by_id(17637,  include_course_summary=True)
         self.verify_bill(user_list)
 
-        self.assertRaises(DataFailureException,
-                          get_user, 'unknown')
-        self.assertRaises(DataFailureException,
-                          get_user_by_id, 19567)
+        self.assertRaises(DataFailureException, get_user, 'unknown')
+
+        self.assertRaises(DataFailureException, get_user_by_id, 19567)
 
     def verify_bill(self, user_list):
         self.assertEqual(len(user_list), 1)
@@ -244,7 +244,7 @@ class TestBridgeUser(TestCase):
         orig_users = get_user('javerage')
         self.assertRaises(DataFailureException,
                           update_user, orig_users[0])
-        
+
     def verify_uid(self, users):
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0].bridge_id, 17637)

@@ -21,24 +21,24 @@ PHEADER = {"Content-Type": "application/json",
 
 def delete_resource(url):
     response = DAO.deleteURL(url, DHEADER)
-    log_data = "DELETE %s ==status==> %s" % (url, response.status)
+    req_data = "DELETE {0}".format(url)
+    _log_resp(req_data, response)
 
     if response.status != 204:
         # 204 is a successful deletion
-        _raise_exception(log_data, url, response)
+        _raise_exception(req_data, url, response)
 
-    _log_resp(log_data, response.data)
     return response
 
 
 def get_resource(url):
     response = DAO.getURL(url, GHEADER)
-    log_data = "GET %s ==status==> %s" % (url, response.status)
+    req_data = "GET {0}".format(url)
+    _log_resp(req_data, response)
 
     if response.status != 200:
-        _raise_exception(log_data, url, response)
+        _raise_exception(req_data, url, response)
 
-    _log_resp(log_data, response.data)
     return response.data
 
 
@@ -48,12 +48,12 @@ def patch_resource(url, body):
     :returns: http response data
     """
     response = DAO.patchURL(url, PHEADER, body)
-    log_data = "PATCH %s %s ==status==> %s" % (url, body, response.status)
+    req_data = "PATCH {0}: {1}".format(url, body)
+    _log_resp(req_data, response)
 
     if response.status != 200:
-        _raise_exception(log_data, url, response)
+        _raise_exception(req_data, url, response)
 
-    _log_resp(log_data, response.data)
     return response.data
 
 
@@ -63,13 +63,12 @@ def post_resource(url, body):
     :returns: http response data
     """
     response = DAO.postURL(url, PHEADER, body)
-    log_data = "POST %s %s ==status==> %s" % (url, body, response.status)
+    req_data = "POST {0}: {1}".format(url, body)
+    _log_resp(req_data, response)
 
     if response.status != 200 and response.status != 201:
-        # 201 Created
-        _raise_exception(log_data, url, response)
+        _raise_exception(req_data, url, response)
 
-    _log_resp(log_data, response.data)
     return response.data
 
 
@@ -80,23 +79,24 @@ def put_resource(url, body):
     Bridge PUT seems to have the same effect as PATCH currently.
     """
     response = DAO.putURL(url, PHEADER, body)
-    log_data = "PUT %s %s ==status==> %s" % (url, body, response.status)
+    req_data = "PUT {0}: {1}".format(url, body)
+    _log_resp(req_data, response)
 
     if response.status != 200:
-        _raise_exception(log_data, url, response)
+        _raise_exception(req_data, url, response)
 
-    _log_resp(log_data, response.data)
     return response.data
 
 
-def _log_resp(log_data, response_data):
-    logger.info(log_data)
-    logger.debug("%s ==data==> %s", log_data, response_data)
+def _log_resp(req_data, response):
+    logger.debug(" {0} ===> STATUS: {1:d}, DATA: {2}".format(
+        req_data, response.status, response.data))
 
 
-def _raise_exception(log_data, url, response):
+def _raise_exception(req_data, url, response):
     if response.status == 404:
-        logger.warning(log_data)
+        logger.warning(" {0} ===> {1}".format(req_data, response.status))
     else:
-        logger.error(log_data)
+        logger.error(" {0} ===> {1}, {2}".format(
+            req_data, response.status, response.data))
     raise DataFailureException(url, response.status, response.data)
