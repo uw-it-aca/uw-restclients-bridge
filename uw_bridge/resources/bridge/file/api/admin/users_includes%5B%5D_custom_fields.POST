@@ -21,6 +21,7 @@
      "first_name":"Eight Class",
      "last_name":"Student",
      "sortable_name":"Student, Eight Class",
+     "is_manager":false,
      "locale":"en",
      "roles":["account_admin"],
      "name":"Eight Class Student",

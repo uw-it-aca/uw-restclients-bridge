@@ -3,6 +3,7 @@ from restclients_core.exceptions import DataFailureException
 from uw_bridge.models import BridgeUser, BridgeCustomField
 from uw_bridge.custom_field import new_regid_custom_field
 from uw_bridge.user import get_user, get_all_users, get_user_by_id,\
+    _process_json_resp_data, _process_apage,\
     add_user, admin_id_url, admin_uid_url, author_id_url,\
     author_uid_url, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX,\
     change_uid, replace_uid, restore_user_by_id, update_user,\
@@ -37,6 +38,17 @@ class TestBridgeUser(TestCase):
                          AUTHOR_URL_PREFIX)
         self.assertEqual(author_uid_url('staff'),
                          AUTHOR_URL_PREFIX + '/uid%3Astaff%40uw%2Eedu')
+
+    def test_process_err(self):
+        self.assertRaises(KeyError,
+                          _process_apage,
+                          {"meta": {}, "linked": {}},
+                          [],
+                          no_custom_fields=False)
+
+        bridge_users = _process_json_resp_data(
+            b'{"linked": {"custom_fields": [], "custom_field_values": []}}')
+        self.assertEqual(len(bridge_users), 0)
 
     def test_get_user(self):
         user_list = get_user('javerage', include_course_summary=False)

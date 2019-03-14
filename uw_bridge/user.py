@@ -198,8 +198,12 @@ def _process_json_resp_data(resp, no_custom_fields=False):
                 "next" in resp_data["meta"]:
             link_url = resp_data["meta"]["next"]
 
-        bridge_users = _process_apage(resp_data, bridge_users,
-                                      no_custom_fields)
+        try:
+            bridge_users = _process_apage(resp_data, bridge_users,
+                                          no_custom_fields)
+        except Exception as err:
+            logger.error("{0} in {1}".format(str(err), resp_data))
+
         if link_url is None:
             break
         resp = get_resource(link_url)
@@ -208,31 +212,14 @@ def _process_json_resp_data(resp, no_custom_fields=False):
 
 
 def _process_apage(resp_data, bridge_users, no_custom_fields):
-    if "linked" not in resp_data:
-        logger.error(
-            "Invalid response body (missing 'linked') {0}".format(resp_data))
-        return bridge_users
-
-    if no_custom_fields is False:
-        if "custom_fields" not in resp_data["linked"] or\
-                "custom_field_values" not in resp_data["linked"]:
-            logger.error(
-                "Invalid response body (missing 'custom_fields') {0}".format(
-                    resp_data))
-            return bridge_users
-
-        custom_fields_value_dict = _get_custom_fields_dict(resp_data["linked"])
-        # a dict of {custom_field_value_id: BridgeCustomField}
-
-    if "users" not in resp_data:
-        logger.error(
-            "Invalid response body (missing 'users') {0}".format(resp_data))
-        return bridge_users
+    custom_fields_value_dict = _get_custom_fields_dict(resp_data["linked"],
+                                                       no_custom_fields)
+    # a dict of {custom_field_value_id: BridgeCustomField}
 
     for user_data in resp_data["users"]:
 
-        if "deleted_at" in user_data and\
-                user_data["deleted_at"] is not None:
+        if ("deleted_at" in user_data and
+                user_data.get("deleted_at") is not None):
             # skip deleted entry
             continue
 
@@ -246,6 +233,7 @@ def _process_apage(resp_data, bridge_users, no_custom_fields):
             last_name=user_data.get("last_name", None),
             sortable_name=user_data.get("sortable_name", None),
             locale=user_data.get("locale", "en"),
+            is_manager=user_data.get("is_manager"),
             avatar_url=user_data.get("avatar_url", None),
             logged_in_at=None,
             updated_at=None,
@@ -255,21 +243,18 @@ def _process_apage(resp_data, bridge_users, no_custom_fields):
                                                   -1),
             )
 
-        if "loggedInAt" in user_data and\
-                user_data["loggedInAt"] is not None:
+        if user_data.get("loggedInAt") is not None:
             user.logged_in_at = parse(user_data["loggedInAt"])
 
-        if "updated_at" in user_data and\
-                user_data["updated_at"] is not None:
+        if user_data.get("updated_at") is not None:
             user.updated_at = parse(user_data["updated_at"])
 
-        if "next_due_date" in user_data and\
-                user_data["next_due_date"] is not None:
+        if user_data.get("next_due_date") is not None:
             user.next_due_date = parse(user_data["next_due_date"])
 
-        if no_custom_fields is False and\
-                "links" in user_data and len(user_data["links"]) > 0 and\
-                "custom_field_values" in user_data["links"]:
+        if (no_custom_fields is False and
+                "links" in user_data and len(user_data["links"]) > 0 and
+                "custom_field_values" in user_data["links"]):
             values = user_data["links"]["custom_field_values"]
             for custom_field_value in values:
                 if custom_field_value in custom_fields_value_dict:
@@ -285,18 +270,23 @@ def _process_apage(resp_data, bridge_users, no_custom_fields):
     return bridge_users
 
 
-def _get_custom_fields_dict(linked_data):
+def _get_custom_fields_dict(linked_data, no_custom_fields):
+    """
+    :except KeyError:
+    """
+    custom_fields_value_dict = {}
+    # a dict of {value_id: BridgeCustomField}
+
+    if no_custom_fields is True:
+        return custom_fields_value_dict
+
     custom_fields_name_dict = {}
     # a dict of {custom_field_id: name}
 
     for id_name_pair in linked_data["custom_fields"]:
         custom_fields_name_dict[id_name_pair["id"]] = id_name_pair["name"]
 
-    custom_fields_value_dict = {}
-    # a dict of {value_id: BridgeCustomField}
-
-    fields_values = linked_data["custom_field_values"]
-    for value in fields_values:
+    for value in linked_data["custom_field_values"]:
         custom_field = BridgeCustomField(
             value_id=value["id"],
             value=value["value"],

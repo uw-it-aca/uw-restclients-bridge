@@ -43,6 +43,7 @@ class BridgeUser(models.Model):
     name = models.CharField(max_length=256, null=True, default=None)
     sortable_name = models.CharField(max_length=256, null=True, default=None)
     avatar_url = models.CharField(max_length=512, null=True, default=None)
+    is_manager = models.NullBooleanField(default=None)
     locale = models.CharField(max_length=2, default='en')
     logged_in_at = models.DateTimeField(null=True, default=None)
     updated_at = models.DateTimeField(null=True, default=None)

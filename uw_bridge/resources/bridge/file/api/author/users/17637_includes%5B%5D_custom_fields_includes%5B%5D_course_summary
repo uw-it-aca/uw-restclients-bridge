@@ -32,6 +32,7 @@
        "locale":"en",
        "roles":[],
        "name":"Bill Average Teacher",
+       "is_manager":true,
        "avatar_url":null,
        "updated_at":"2016-08-08T13:58:20.635-07:00",
        "deleted_at":null,
