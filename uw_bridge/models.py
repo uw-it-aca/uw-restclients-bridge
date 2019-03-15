@@ -43,6 +43,7 @@ class BridgeUser(models.Model):
     name = models.CharField(max_length=256, null=True, default=None)
     sortable_name = models.CharField(max_length=256, null=True, default=None)
     avatar_url = models.CharField(max_length=512, null=True, default=None)
+    is_manager = models.NullBooleanField(default=None)
     locale = models.CharField(max_length=2, default='en')
     logged_in_at = models.DateTimeField(null=True, default=None)
     updated_at = models.DateTimeField(null=True, default=None)
@@ -51,7 +52,7 @@ class BridgeUser(models.Model):
     completed_courses_count = models.IntegerField(default=-1)
 
     def get_uid(self):
-        return "%s@uw.edu" % self.netid
+        return "{}@uw.edu".format(self.netid)
 
     def has_course_summary(self):
         try:

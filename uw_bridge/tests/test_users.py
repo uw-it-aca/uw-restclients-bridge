@@ -3,6 +3,7 @@ from restclients_core.exceptions import DataFailureException
 from uw_bridge.models import BridgeUser, BridgeCustomField
 from uw_bridge.custom_field import new_regid_custom_field
 from uw_bridge.user import get_user, get_all_users, get_user_by_id,\
+    _process_json_resp_data, _process_apage,\
     add_user, admin_id_url, admin_uid_url, author_id_url,\
     author_uid_url, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX,\
     change_uid, replace_uid, restore_user_by_id, update_user,\
@@ -37,6 +38,17 @@ class TestBridgeUser(TestCase):
                          AUTHOR_URL_PREFIX)
         self.assertEqual(author_uid_url('staff'),
                          AUTHOR_URL_PREFIX + '/uid%3Astaff%40uw%2Eedu')
+
+    def test_process_err(self):
+        self.assertRaises(KeyError,
+                          _process_apage,
+                          {"meta": {}, "linked": {}},
+                          [],
+                          no_custom_fields=False)
+
+        bridge_users = _process_json_resp_data(
+            b'{"linked": {"custom_fields": [], "custom_field_values": []}}')
+        self.assertEqual(len(bridge_users), 0)
 
     def test_get_user(self):
         user_list = get_user('javerage', include_course_summary=False)
@@ -76,13 +88,13 @@ class TestBridgeUser(TestCase):
 
         user_list = get_user('bill', include_course_summary=True)
         self.verify_bill(user_list)
+
         user_list = get_user_by_id(17637,  include_course_summary=True)
         self.verify_bill(user_list)
 
-        self.assertRaises(DataFailureException,
-                          get_user, 'unknown')
-        self.assertRaises(DataFailureException,
-                          get_user_by_id, 19567)
+        self.assertRaises(DataFailureException, get_user, 'unknown')
+
+        self.assertRaises(DataFailureException, get_user_by_id, 19567)
 
     def verify_bill(self, user_list):
         self.assertEqual(len(user_list), 1)
@@ -95,6 +107,7 @@ class TestBridgeUser(TestCase):
         self.assertEqual(user.sortable_name, "Teacher, Bill Average")
         self.assertEqual(user.email, "bill@u.washington.edu")
         self.assertEqual(user.netid, "bill")
+        self.assertTrue(user.is_manager)
         self.assertEqual(user.get_uid(), "bill@uw.edu")
         cus_field = user.custom_fields[0]
         self.assertEqual(cus_field.value,
@@ -244,7 +257,7 @@ class TestBridgeUser(TestCase):
         orig_users = get_user('javerage')
         self.assertRaises(DataFailureException,
                           update_user, orig_users[0])
-        
+
     def verify_uid(self, users):
         self.assertEqual(len(users), 1)
         self.assertEqual(users[0].bridge_id, 17637)

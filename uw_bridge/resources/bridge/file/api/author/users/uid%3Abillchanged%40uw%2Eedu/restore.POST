@@ -11,6 +11,7 @@
        "sortable_name":"Teacher, Bill Average",
        "email":"bill@u.washington.edu",
        "locale":"en",
+       "is_manager":true,
        "roles":[],
        "name":"Bill Average Teacher",
        "avatar_url":null,
