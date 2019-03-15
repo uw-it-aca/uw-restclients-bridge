@@ -10,6 +10,8 @@ class TestBridgeModel(TestCase):
         role = BridgeUserRole(role_id='user', name='user')
         self.assertEqual(role.to_json(),
                          {"id": "user", "name": "user"})
+        self.assertEqual(str(role),
+                         '{"id": "user", "name": "user"}')
 
     def test_bridge_custom_field(self):
         bcf = BridgeCustomField(value_id="1",
