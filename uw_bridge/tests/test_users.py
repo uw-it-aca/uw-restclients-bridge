@@ -89,23 +89,24 @@ class TestBridgeUser(TestCase):
         self.assertEqual(cus_field.value,
                          "9136CCB8F66711D5BE060004AC494FFE")
 
+    def test_get_user_include_deleted(self):
         user_list = get_user('bill', exclude_deleted=False,
                              include_course_summary=True)
-        self.verify_bill(user_list)
+        self.assertEqual(len(user_list), 2)
+        self.verify_bill(user_list[0])
         self.assertTrue(user_list[0].is_deleted())
 
         user_list = get_user_by_id(17637, exclude_deleted=False,
                                    include_course_summary=True)
-        self.verify_bill(user_list)
+        self.assertEqual(len(user_list), 1)
+        self.verify_bill(user_list[0])
         self.assertTrue(user_list[0].is_deleted())
 
         self.assertRaises(DataFailureException, get_user, 'unknown')
 
         self.assertRaises(DataFailureException, get_user_by_id, 19567)
 
-    def verify_bill(self, user_list):
-        self.assertEqual(len(user_list), 1)
-        user = user_list[0]
+    def verify_bill(self, user):
         self.assertEqual(user.name, "Bill Average Teacher")
         self.assertEqual(user.bridge_id, 17637)
         self.assertEqual(user.first_name, "Bill Average")
@@ -243,7 +244,8 @@ class TestBridgeUser(TestCase):
                               exclude_deleted=False,
                               include_course_summary=True)
         upded_users = update_user(orig_users[0])
-        self.verify_bill(upded_users)
+        self.assertEqual(len(upded_users), 1)
+        self.verify_bill(upded_users[0])
         self.assertFalse(upded_users[0].is_deleted())
         self.assertEqual(
             str(upded_users[0].updated_at),
@@ -255,7 +257,8 @@ class TestBridgeUser(TestCase):
                           email='bill@u.washington.edu',
                           full_name='Bill Average Teacher')
         upded_users = update_user(user)
-        self.verify_bill(upded_users)
+        self.assertEqual(len(upded_users), 1)
+        self.verify_bill(upded_users[0])
 
         orig_users = get_user('javerage')
         self.assertRaises(DataFailureException,
