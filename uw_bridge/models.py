@@ -59,10 +59,8 @@ class BridgeUser(models.Model):
         return "{}@uw.edu".format(self.netid)
 
     def has_course_summary(self):
-        try:
-            return self.completed_courses_count >= 0
-        except AttributeError:
-            return False
+        # having the data field
+        return self.completed_courses_count >= 0
 
     def has_bridge_id(self):
         return self.bridge_id > 0
@@ -71,35 +69,26 @@ class BridgeUser(models.Model):
         return self.has_course_summary() and self.completed_courses_count == 0
 
     def json_data(self, omit_custom_fields=False):
-        # omit_custom_fields if it is empty
         ret_user = {"uid": self.get_uid(),
                     "full_name": self.full_name,
                     "email": self.email,
                     }
+
+        # omit_custom_fields if it is empty
         if not (len(self.custom_fields) == 0 and omit_custom_fields):
             custom_fields_json = []
             for field in self.custom_fields:
                 custom_fields_json.append(field.to_json())
             ret_user["custom_fields"] = custom_fields_json
 
-        try:
-            if self.has_bridge_id():
-                ret_user["id"] = self.bridge_id
-        except AttributeError:
-            pass
+        if self.has_bridge_id():
+            ret_user["id"] = self.bridge_id
 
-        try:
-            if self.first_name and len(self.first_name) > 0:
-                ret_user["first_name"] = self.first_name
-        except AttributeError:
-            pass
+        if self.first_name and len(self.first_name) > 0:
+            ret_user["first_name"] = self.first_name
 
-        try:
-            if self.last_name and len(self.last_name) > 0:
-                ret_user["last_name"] = self.last_name
-        except AttributeError:
-            pass
-
+        if self.last_name and len(self.last_name) > 0:
+            ret_user["last_name"] = self.last_name
         return ret_user
 
     def to_json_post(self):
