@@ -122,26 +122,20 @@ class TestBridgeUser(TestCase):
 
     def test_get_alluser(self):
         user_list = get_all_users(include_course_summary=True)
-        self.assertEqual(len(user_list), 4)
+        self.assertEqual(len(user_list), 3)
         user = user_list[0]
-        self.assertEqual(user.name, "Bill Average Teacher")
-        self.assertEqual(user.bridge_id, 17637)
-        cus_field = user.custom_fields[0]
-        self.assertEqual(cus_field.value,
-                         "FBB38FE46A7C11D5A4AE0004AC494FFE")
-        user = user_list[1]
         self.assertEqual(user.name, "Eight Class Student")
         self.assertEqual(user.bridge_id, 106)
         cus_field = user.custom_fields[0]
         self.assertEqual(cus_field.value,
                          "12345678901234567890123456789012")
-        user = user_list[2]
+        user = user_list[1]
         self.assertEqual(user.name, "James Student")
         self.assertEqual(user.bridge_id, 195)
         cus_field = user.custom_fields[0]
         self.assertEqual(cus_field.value,
                          "9136CCB8F66711D5BE060004AC494FFE")
-        user = user_list[3]
+        user = user_list[2]
         self.assertEqual(user.name, "None Average Student")
         self.assertEqual(user.bridge_id, 17)
         cus_field = user.custom_fields[0]
@@ -149,11 +143,10 @@ class TestBridgeUser(TestCase):
                          "00000000000000000000000000000001")
 
         user_list = get_all_users(include_course_summary=False)
-        self.assertEqual(len(user_list), 4)
-        self.assertEqual(user_list[0].bridge_id, 17637)
-        self.assertEqual(user_list[1].bridge_id, 106)
-        self.assertEqual(user_list[2].bridge_id, 195)
-        self.assertEqual(user_list[3].bridge_id, 17)
+        self.assertEqual(len(user_list), 3)
+        self.assertEqual(user_list[0].bridge_id, 106)
+        self.assertEqual(user_list[1].bridge_id, 195)
+        self.assertEqual(user_list[2].bridge_id, 17)
 
     def test_add_user(self):
         regid = "12345678901234567890123456789012"
