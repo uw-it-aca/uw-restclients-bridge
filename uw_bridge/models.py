@@ -45,11 +45,15 @@ class BridgeUser(models.Model):
     avatar_url = models.CharField(max_length=512, null=True, default=None)
     is_manager = models.NullBooleanField(default=None)
     locale = models.CharField(max_length=2, default='en')
+    deleted_at = models.DateTimeField(null=True, default=None)
     logged_in_at = models.DateTimeField(null=True, default=None)
     updated_at = models.DateTimeField(null=True, default=None)
     unsubscribed = models.CharField(max_length=128, null=True, default=None)
     next_due_date = models.DateTimeField(null=True, default=None)
     completed_courses_count = models.IntegerField(default=-1)
+
+    def is_deleted(self):
+        return self.deleted_at is not None
 
     def get_uid(self):
         return "{}@uw.edu".format(self.netid)
@@ -106,28 +110,15 @@ class BridgeUser(models.Model):
         # for PATCH, PUT (update)
         return {"user": self.json_data(omit_custom_fields=True)}
 
-    def __str__(self):
+    def __str__(self, orig=True):
         json_data = self.json_data()
-        try:
-            if self.sortable_name:
-                json_data["sortable_name"] = self.sortable_name
-        except AttributeError:
-            pass
-        try:
-            if self.updated_at:
-                json_data["updated_at"] = self.updated_at
-        except AttributeError:
-            pass
-        try:
-            if self.logged_in_at:
-                json_data["logged_in_at"] = self.logged_in_at
-        except AttributeError:
-            pass
-        try:
+        if orig:
+            json_data["sortable_name"] = self.sortable_name
+            json_data["deleted_at"] = self.deleted_at
+            json_data["logged_in_at"] = self.logged_in_at
+            json_data["updated_at"] = self.updated_at
             json_data["completed_courses_count"] =\
                 self.completed_courses_count
-        except AttributeError:
-            pass
         return json.dumps(json_data, default=str)
 
     def __init__(self, *args, **kwargs):

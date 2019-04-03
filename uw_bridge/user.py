@@ -110,7 +110,7 @@ def delete_user_by_id(bridge_id):
     return resp.status == 204
 
 
-def get_user(uwnetid, include_course_summary=True):
+def get_user(uwnetid, exclude_deleted=True, include_course_summary=True):
     """
     Return a list of BridgeUsers objects with custom fields
     """
@@ -118,10 +118,11 @@ def get_user(uwnetid, include_course_summary=True):
     if include_course_summary:
         url = "{0}&{1}".format(url, COURSE_SUMMARY)
     resp = get_resource(url)
-    return _process_json_resp_data(resp)
+    return _process_json_resp_data(resp, exclude_deleted=exclude_deleted)
 
 
-def get_user_by_id(bridge_id, include_course_summary=True):
+def get_user_by_id(bridge_id, exclude_deleted=True,
+                   include_course_summary=True):
     """
     :param bridge_id: integer
     Return a list of BridgeUsers objects with custom fields
@@ -130,7 +131,7 @@ def get_user_by_id(bridge_id, include_course_summary=True):
     if include_course_summary:
         url = "{0}&{1}".format(url, COURSE_SUMMARY)
     resp = get_resource(url)
-    return _process_json_resp_data(resp)
+    return _process_json_resp_data(resp, exclude_deleted=exclude_deleted)
 
 
 def get_all_users(include_course_summary=True):
@@ -186,7 +187,9 @@ def update_user(bridge_user):
     return _process_json_resp_data(resp)
 
 
-def _process_json_resp_data(resp, no_custom_fields=False):
+def _process_json_resp_data(resp,
+                            exclude_deleted=True,
+                            no_custom_fields=False):
     """
     process the response and return a list of BridgeUser
     """
@@ -200,6 +203,7 @@ def _process_json_resp_data(resp, no_custom_fields=False):
 
         try:
             bridge_users = _process_apage(resp_data, bridge_users,
+                                          exclude_deleted,
                                           no_custom_fields)
         except Exception as err:
             logger.error("{0} in {1}".format(str(err), resp_data))
@@ -211,14 +215,16 @@ def _process_json_resp_data(resp, no_custom_fields=False):
     return bridge_users
 
 
-def _process_apage(resp_data, bridge_users, no_custom_fields):
+def _process_apage(resp_data, bridge_users,
+                   exclude_deleted, no_custom_fields):
     custom_fields_value_dict = _get_custom_fields_dict(resp_data["linked"],
                                                        no_custom_fields)
     # a dict of {custom_field_value_id: BridgeCustomField}
 
     for user_data in resp_data["users"]:
 
-        if ("deleted_at" in user_data and
+        if (exclude_deleted and
+            "deleted_at" in user_data and
                 user_data.get("deleted_at") is not None):
             # skip deleted entry
             continue
@@ -235,6 +241,7 @@ def _process_apage(resp_data, bridge_users, no_custom_fields):
             locale=user_data.get("locale", "en"),
             is_manager=user_data.get("is_manager"),
             avatar_url=user_data.get("avatar_url", None),
+            deleted_at=None,
             logged_in_at=None,
             updated_at=None,
             unsubscribed=user_data.get("unsubscribed", None),
@@ -242,6 +249,9 @@ def _process_apage(resp_data, bridge_users, no_custom_fields):
             completed_courses_count=user_data.get("completed_courses_count",
                                                   -1),
             )
+
+        if user_data.get("deleted_at") is not None:
+            user.deleted_at = parse(user_data["deleted_at"])
 
         if user_data.get("loggedInAt") is not None:
             user.logged_in_at = parse(user_data["loggedInAt"])
