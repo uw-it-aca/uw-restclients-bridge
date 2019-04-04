@@ -46,10 +46,12 @@ class TestBridgeModel(TestCase):
             value="12345678901234567890123456789012")
         user = BridgeUser()
         user.netid = "iamstudent"
+        user.email = "iamstudent@uw.edu"
         user.full_name = "Iam Student"
+        self.assertIsNotNone(str(user))
+
         user.first_name = "Iam A"
         user.last_name = "Student"
-        user.email = "iamstudent@uw.edu"
         user.custom_fields.append(bcf)
         user.updated_at = parse("2016-08-08T13:58:20.635-07:00")
         self.assertIsNotNone(str(user))

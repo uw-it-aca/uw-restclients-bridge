@@ -2,12 +2,13 @@ from unittest import TestCase
 from restclients_core.exceptions import DataFailureException
 from uw_bridge.models import BridgeUser, BridgeCustomField
 from uw_bridge.custom_field import new_regid_custom_field
-from uw_bridge.user import get_user, get_all_users, get_user_by_id,\
-    _process_json_resp_data, _process_apage,\
-    add_user, admin_id_url, admin_uid_url, author_id_url,\
-    author_uid_url, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX,\
-    change_uid, replace_uid, restore_user_by_id, update_user,\
-    restore_user, delete_user, delete_user_by_id, get_regid_from_custom_fields
+from uw_bridge.user import (
+    get_user, get_all_users, get_user_by_id, _process_json_resp_data,
+    _process_apage, add_user, admin_id_url, admin_uid_url, author_id_url,
+    author_uid_url, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX,
+    change_uid, replace_uid, restore_user_by_id, update_user,
+    restore_user, delete_user, delete_user_by_id,
+    get_regid_from_custom_fields)
 from uw_bridge.tests import fdao_bridge_override, fdao_pws_override
 
 
@@ -44,6 +45,7 @@ class TestBridgeUser(TestCase):
                           _process_apage,
                           {"meta": {}, "linked": {}},
                           [],
+                          exclude_deleted=False,
                           no_custom_fields=False)
 
         bridge_users = _process_json_resp_data(
@@ -68,6 +70,7 @@ class TestBridgeUser(TestCase):
         self.assertEqual(user.email, "javerage@uw.edu")
         self.assertEqual(user.netid, "javerage")
         self.assertEqual(user.get_uid(), "javerage@uw.edu")
+        self.assertFalse(user.is_deleted())
         self.assertEqual(
             str(user.updated_at), '2016-07-25 16:24:42.131000-07:00')
         self.assertEqual(
@@ -86,19 +89,24 @@ class TestBridgeUser(TestCase):
         self.assertEqual(cus_field.value,
                          "9136CCB8F66711D5BE060004AC494FFE")
 
-        user_list = get_user('bill', include_course_summary=True)
-        self.verify_bill(user_list)
+    def test_get_user_include_deleted(self):
+        user_list = get_user('bill', exclude_deleted=False,
+                             include_course_summary=True)
+        self.assertEqual(len(user_list), 2)
+        self.verify_bill(user_list[0])
+        self.assertTrue(user_list[0].is_deleted())
 
-        user_list = get_user_by_id(17637,  include_course_summary=True)
-        self.verify_bill(user_list)
+        user_list = get_user_by_id(17637, exclude_deleted=False,
+                                   include_course_summary=True)
+        self.assertEqual(len(user_list), 1)
+        self.verify_bill(user_list[0])
+        self.assertTrue(user_list[0].is_deleted())
 
         self.assertRaises(DataFailureException, get_user, 'unknown')
 
         self.assertRaises(DataFailureException, get_user_by_id, 19567)
 
-    def verify_bill(self, user_list):
-        self.assertEqual(len(user_list), 1)
-        user = user_list[0]
+    def verify_bill(self, user):
         self.assertEqual(user.name, "Bill Average Teacher")
         self.assertEqual(user.bridge_id, 17637)
         self.assertEqual(user.first_name, "Bill Average")
@@ -115,26 +123,20 @@ class TestBridgeUser(TestCase):
 
     def test_get_alluser(self):
         user_list = get_all_users(include_course_summary=True)
-        self.assertEqual(len(user_list), 4)
+        self.assertEqual(len(user_list), 3)
         user = user_list[0]
-        self.assertEqual(user.name, "Bill Average Teacher")
-        self.assertEqual(user.bridge_id, 17637)
-        cus_field = user.custom_fields[0]
-        self.assertEqual(cus_field.value,
-                         "FBB38FE46A7C11D5A4AE0004AC494FFE")
-        user = user_list[1]
         self.assertEqual(user.name, "Eight Class Student")
         self.assertEqual(user.bridge_id, 106)
         cus_field = user.custom_fields[0]
         self.assertEqual(cus_field.value,
                          "12345678901234567890123456789012")
-        user = user_list[2]
+        user = user_list[1]
         self.assertEqual(user.name, "James Student")
         self.assertEqual(user.bridge_id, 195)
         cus_field = user.custom_fields[0]
         self.assertEqual(cus_field.value,
                          "9136CCB8F66711D5BE060004AC494FFE")
-        user = user_list[3]
+        user = user_list[2]
         self.assertEqual(user.name, "None Average Student")
         self.assertEqual(user.bridge_id, 17)
         cus_field = user.custom_fields[0]
@@ -142,11 +144,10 @@ class TestBridgeUser(TestCase):
                          "00000000000000000000000000000001")
 
         user_list = get_all_users(include_course_summary=False)
-        self.assertEqual(len(user_list), 4)
-        self.assertEqual(user_list[0].bridge_id, 17637)
-        self.assertEqual(user_list[1].bridge_id, 106)
-        self.assertEqual(user_list[2].bridge_id, 195)
-        self.assertEqual(user_list[3].bridge_id, 17)
+        self.assertEqual(len(user_list), 3)
+        self.assertEqual(user_list[0].bridge_id, 106)
+        self.assertEqual(user_list[1].bridge_id, 195)
+        self.assertEqual(user_list[2].bridge_id, 17)
 
     def test_add_user(self):
         regid = "12345678901234567890123456789012"
@@ -239,9 +240,13 @@ class TestBridgeUser(TestCase):
                          "FBB38FE46A7C11D5A4AE0004AC494FFE")
 
     def test_update_user(self):
-        orig_users = get_user('bill', include_course_summary=True)
+        orig_users = get_user('bill',
+                              exclude_deleted=False,
+                              include_course_summary=True)
         upded_users = update_user(orig_users[0])
-        self.verify_bill(upded_users)
+        self.assertEqual(len(upded_users), 1)
+        self.verify_bill(upded_users[0])
+        self.assertFalse(upded_users[0].is_deleted())
         self.assertEqual(
             str(upded_users[0].updated_at),
             '2016-09-08 13:58:20.635000-07:00')
@@ -252,7 +257,8 @@ class TestBridgeUser(TestCase):
                           email='bill@u.washington.edu',
                           full_name='Bill Average Teacher')
         upded_users = update_user(user)
-        self.verify_bill(upded_users)
+        self.assertEqual(len(upded_users), 1)
+        self.verify_bill(upded_users[0])
 
         orig_users = get_user('javerage')
         self.assertRaises(DataFailureException,

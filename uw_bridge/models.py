@@ -45,20 +45,22 @@ class BridgeUser(models.Model):
     avatar_url = models.CharField(max_length=512, null=True, default=None)
     is_manager = models.NullBooleanField(default=None)
     locale = models.CharField(max_length=2, default='en')
+    deleted_at = models.DateTimeField(null=True, default=None)
     logged_in_at = models.DateTimeField(null=True, default=None)
     updated_at = models.DateTimeField(null=True, default=None)
     unsubscribed = models.CharField(max_length=128, null=True, default=None)
     next_due_date = models.DateTimeField(null=True, default=None)
     completed_courses_count = models.IntegerField(default=-1)
 
+    def is_deleted(self):
+        return self.deleted_at is not None
+
     def get_uid(self):
         return "{}@uw.edu".format(self.netid)
 
     def has_course_summary(self):
-        try:
-            return self.completed_courses_count >= 0
-        except AttributeError:
-            return False
+        # having the data field
+        return self.completed_courses_count >= 0
 
     def has_bridge_id(self):
         return self.bridge_id > 0
@@ -67,35 +69,26 @@ class BridgeUser(models.Model):
         return self.has_course_summary() and self.completed_courses_count == 0
 
     def json_data(self, omit_custom_fields=False):
-        # omit_custom_fields if it is empty
         ret_user = {"uid": self.get_uid(),
                     "full_name": self.full_name,
                     "email": self.email,
                     }
+
+        # omit_custom_fields if it is empty
         if not (len(self.custom_fields) == 0 and omit_custom_fields):
             custom_fields_json = []
             for field in self.custom_fields:
                 custom_fields_json.append(field.to_json())
             ret_user["custom_fields"] = custom_fields_json
 
-        try:
-            if self.has_bridge_id():
-                ret_user["id"] = self.bridge_id
-        except AttributeError:
-            pass
+        if self.has_bridge_id():
+            ret_user["id"] = self.bridge_id
 
-        try:
-            if self.first_name and len(self.first_name) > 0:
-                ret_user["first_name"] = self.first_name
-        except AttributeError:
-            pass
+        if self.first_name and len(self.first_name) > 0:
+            ret_user["first_name"] = self.first_name
 
-        try:
-            if self.last_name and len(self.last_name) > 0:
-                ret_user["last_name"] = self.last_name
-        except AttributeError:
-            pass
-
+        if self.last_name and len(self.last_name) > 0:
+            ret_user["last_name"] = self.last_name
         return ret_user
 
     def to_json_post(self):
@@ -106,28 +99,15 @@ class BridgeUser(models.Model):
         # for PATCH, PUT (update)
         return {"user": self.json_data(omit_custom_fields=True)}
 
-    def __str__(self):
+    def __str__(self, orig=True):
         json_data = self.json_data()
-        try:
-            if self.sortable_name:
-                json_data["sortable_name"] = self.sortable_name
-        except AttributeError:
-            pass
-        try:
-            if self.updated_at:
-                json_data["updated_at"] = self.updated_at
-        except AttributeError:
-            pass
-        try:
-            if self.logged_in_at:
-                json_data["logged_in_at"] = self.logged_in_at
-        except AttributeError:
-            pass
-        try:
+        if orig:
+            json_data["sortable_name"] = self.sortable_name
+            json_data["deleted_at"] = self.deleted_at
+            json_data["logged_in_at"] = self.logged_in_at
+            json_data["updated_at"] = self.updated_at
             json_data["completed_courses_count"] =\
                 self.completed_courses_count
-        except AttributeError:
-            pass
         return json.dumps(json_data, default=str)
 
     def __init__(self, *args, **kwargs):
