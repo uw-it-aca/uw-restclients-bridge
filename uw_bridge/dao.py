@@ -20,8 +20,10 @@ class Bridge_DAO(DAO):
 
     def _get_basic_auth(self):
         return "{0}:{1}".format(
-            self.get_service_setting("BASIC_AUTH_KEY", ""),
-            self.get_service_setting("BASIC_AUTH_SECRET", ""))
+            self.get_service_setting(
+                "RESTCLIENTS_BRIDGE_BASIC_AUTH_KEY", ""),
+            self.get_service_setting(
+                "RESTCLIENTS_BRIDGE_BASIC_AUTH_SECRET", ""))
 
     def _custom_headers(self, method, url, headers, body):
         headers["Authorization"] = "Basic {0}".format(self._get_basic_auth())
