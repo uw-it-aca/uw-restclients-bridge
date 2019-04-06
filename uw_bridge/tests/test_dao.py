@@ -12,7 +12,7 @@ class TestBridgeDao(TestCase):
 
     def test_custom_headers(self):
         self.assertEqual(Bridge_DAO()._custom_headers('GET', '/', {}, None),
-                         {'Authorization': 'Basic :'})
+                         {'Authorization': 'Basic MDAwMDA6MDAwMDA='})
 
     def test_edit_mock_response(self):
         response = MockHTTP()

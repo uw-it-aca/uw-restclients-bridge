@@ -2,6 +2,7 @@
 Contains Bridge DAO implementations.
 """
 
+from base64 import urlsafe_b64encode
 import logging
 import os
 from os.path import abspath, dirname
@@ -21,12 +22,14 @@ class Bridge_DAO(DAO):
     def _get_basic_auth(self):
         return "{0}:{1}".format(
             self.get_service_setting(
-                "RESTCLIENTS_BRIDGE_BASIC_AUTH_KEY", ""),
+                "BASIC_AUTH_KEY", ""),
             self.get_service_setting(
-                "RESTCLIENTS_BRIDGE_BASIC_AUTH_SECRET", ""))
+                "BASIC_AUTH_SECRET", ""))
 
     def _custom_headers(self, method, url, headers, body):
-        headers["Authorization"] = "Basic {0}".format(self._get_basic_auth())
+        credentials = self._get_basic_auth().encode()
+        headers["Authorization"] = "Basic {0}".format(
+            urlsafe_b64encode(credentials).decode("ascii"))
         return headers
 
     def _edit_mock_response(self, method, url, headers, body, response):
