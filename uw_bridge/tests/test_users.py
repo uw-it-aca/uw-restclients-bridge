@@ -5,7 +5,7 @@ from uw_bridge.custom_field import new_regid_custom_field
 from uw_bridge.user import (
     get_user, get_all_users, get_user_by_id, _process_json_resp_data,
     _process_apage, add_user, admin_id_url, admin_uid_url, author_id_url,
-    author_uid_url, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX,
+    author_uid_url, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX, _upd_uid_req_body,
     change_uid, replace_uid, restore_user_by_id, update_user,
     restore_user, delete_user, delete_user_by_id,
     get_regid_from_custom_fields)
@@ -187,6 +187,11 @@ class TestBridgeUser(TestCase):
             reps = delete_user("staff")
         except Exception as ex:
             self.assertEqual(ex.status, 404)
+
+    def test_upd_uid_req_body(self):
+        print(_upd_uid_req_body("netid"))
+        self.assertEqual(_upd_uid_req_body("netid"),
+                         '{"user":{"uid":"netid@uw.edu"}}')
 
     def test_change_uid(self):
         self.assertRaises(DataFailureException,

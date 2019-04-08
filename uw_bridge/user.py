@@ -64,8 +64,8 @@ def add_user(bridge_user):
     return _process_json_resp_data(resp, no_custom_fields=True)
 
 
-def __upd_uid_req_body(new_uwnetid):
-    return "{0}{1}@uw.edu'}}".format("{'user': {'uid': '", new_uwnetid)
+def _upd_uid_req_body(new_uwnetid):
+    return "{0}{1}@uw.edu{2}".format('{"user":{"uid":"', new_uwnetid, '"}}')
 
 
 def change_uid(bridge_id, new_uwnetid, no_custom_fields=True):
@@ -75,7 +75,7 @@ def change_uid(bridge_id, new_uwnetid, no_custom_fields=True):
     Return a list of BridgeUser objects
     """
     url = author_id_url(bridge_id, no_custom_fields=no_custom_fields)
-    resp = patch_resource(url, __upd_uid_req_body(new_uwnetid))
+    resp = patch_resource(url, _upd_uid_req_body(new_uwnetid))
     return _process_json_resp_data(resp,
                                    no_custom_fields=no_custom_fields)
 
@@ -86,7 +86,7 @@ def replace_uid(old_uwnetid, new_uwnetid, no_custom_fields=True):
     Return a list of BridgeUser objects
     """
     url = author_uid_url(old_uwnetid, no_custom_fields=no_custom_fields)
-    resp = patch_resource(url, __upd_uid_req_body(new_uwnetid))
+    resp = patch_resource(url, _upd_uid_req_body(new_uwnetid))
     return _process_json_resp_data(resp,
                                    no_custom_fields=no_custom_fields)
 
