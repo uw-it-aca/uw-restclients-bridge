@@ -134,11 +134,11 @@ def get_user_by_id(bridge_id, exclude_deleted=True,
     return _process_json_resp_data(resp, exclude_deleted=exclude_deleted)
 
 
-def get_all_users(include_course_summary=True):
+def get_all_users(include_course_summary=True, no_custom_fields=False):
     """
     Return a list of BridgeUser objects with custom fields.
     """
-    url = author_uid_url(None, no_custom_fields=False)
+    url = author_uid_url(None, no_custom_fields=no_custom_fields)
 
     if include_course_summary:
         url = "{0}&{1}".format(url, COURSE_SUMMARY)
@@ -147,7 +147,8 @@ def get_all_users(include_course_summary=True):
 
     resp = get_resource(url)
 
-    return _process_json_resp_data(resp)
+    return _process_json_resp_data(resp,
+                                   no_custom_fields=no_custom_fields)
 
 
 def __restore_user_url(base_url):
