@@ -74,8 +74,7 @@ class BridgeUser(models.Model):
                     "email": self.email,
                     }
 
-        # omit_custom_fields if it is empty
-        if not (len(self.custom_fields) == 0 and omit_custom_fields):
+        if len(self.custom_fields) > 0 or not omit_custom_fields:
             custom_fields_json = []
             for field in self.custom_fields:
                 custom_fields_json.append(field.to_json())
@@ -92,7 +91,7 @@ class BridgeUser(models.Model):
         return ret_user
 
     def to_json_post(self):
-        # for POST (add new user)
+        # for POST (add new or restore a user)
         return {"users": [self.json_data()]}
 
     def to_json_patch(self):
