@@ -13,6 +13,7 @@ from uw_bridge import get_resource, patch_resource, post_resource,\
 logger = logging.getLogger(__name__)
 ADMIN_URL_PREFIX = "/api/admin/users"
 AUTHOR_URL_PREFIX = "/api/author/users"
+NO_INCLUDES = "includes="
 CUSTOM_FIELD = "includes%5B%5D=custom_fields"
 COURSE_SUMMARY = "includes%5B%5D=course_summary"
 PAGE_MAX_ENTRY = "limit=1000"
@@ -134,19 +135,22 @@ def get_user_by_id(bridge_id, exclude_deleted=True,
     return _process_json_resp_data(resp, exclude_deleted=exclude_deleted)
 
 
+def _get_all_users_url(include_course_summary, no_custom_fields):
+    if not include_course_summary and no_custom_fields:
+        url = "{0}?{1}".format(author_uid_url(None), NO_INCLUDES)
+    else:
+        url = author_uid_url(None, no_custom_fields=no_custom_fields)
+        if include_course_summary:
+            url = "{0}&{1}".format(url, COURSE_SUMMARY)
+    return "{0}&{1}".format(url, PAGE_MAX_ENTRY)
+
+
 def get_all_users(include_course_summary=True, no_custom_fields=False):
     """
     Return a list of BridgeUser objects with custom fields.
     """
-    url = author_uid_url(None, no_custom_fields=no_custom_fields)
-
-    if include_course_summary:
-        url = "{0}&{1}".format(url, COURSE_SUMMARY)
-
-    url = "{0}&{1}".format(url, PAGE_MAX_ENTRY)
-
-    resp = get_resource(url)
-
+    resp = get_resource(
+        _get_all_users_url(include_course_summary, no_custom_fields))
     return _process_json_resp_data(resp,
                                    no_custom_fields=no_custom_fields)
 
@@ -198,8 +202,8 @@ def _process_json_resp_data(resp,
     while True:
         resp_data = json.loads(resp)
         link_url = None
-        if "meta" in resp_data and\
-                "next" in resp_data["meta"]:
+        if (resp_data.get("meta") is not None and
+                resp_data["meta"].get("next") is not None):
             link_url = resp_data["meta"]["next"]
 
         try:
