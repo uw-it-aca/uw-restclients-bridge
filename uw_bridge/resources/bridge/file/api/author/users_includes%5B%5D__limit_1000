@@ -1,6 +1,6 @@
 {
   "meta":{
-     "next":"/api/author/users?after=xxx\u0026includes[]=custom_fields"},
+     "next":"/api/author/users?after=xxx&includes%5B%5D="},
   "linked":{},
   "users":[
        {"id":"17637",
@@ -21,8 +21,14 @@
        "unsubscribed":null,
        "welcomedAt":null,
        "loggedInAt":null,
-       "links":{
-       },
+       "passwordIsSet":false,
+       "hire_date":null,
+       "is_manager":false,
+       "job_title":null,
+       "bio":null,
+       "department":null,
+       "anonymized":null,
+       "links":{},
        "meta":{"can_masquerade":true}
        },
        {"id":"106",
@@ -43,8 +49,14 @@
        "unsubscribed":null,
        "welcomedAt":null,
        "loggedInAt":null,
-       "links":{
-       },
+       "passwordIsSet":false,
+       "hire_date":null,
+       "is_manager":false,
+       "job_title":null,
+       "bio":null,
+       "department":null,
+       "anonymized":null,
+       "links":{},
        "meta":{"can_masquerade":true}
        },
        {"id":"195",
@@ -64,8 +76,14 @@
        "unsubscribed":null,
        "welcomedAt":null,
        "loggedInAt":null,
-       "links":{
-       },
+       "passwordIsSet":false,
+       "hire_date":null,
+       "is_manager":false,
+       "job_title":null,
+       "bio":null,
+       "department":null,
+       "anonymized":null,
+       "links":{ },
        "meta":{"can_masquerade":true}
        }
 ]}

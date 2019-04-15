@@ -7,7 +7,7 @@ from uw_bridge.user import (
     _process_apage, add_user, admin_id_url, admin_uid_url, author_id_url,
     author_uid_url, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX, _upd_uid_req_body,
     change_uid, replace_uid, restore_user_by_id, update_user,
-    restore_user, delete_user, delete_user_by_id,
+    restore_user, delete_user, delete_user_by_id, _get_all_users_url,
     get_regid_from_custom_fields)
 from uw_bridge.tests import fdao_bridge_override, fdao_pws_override
 
@@ -121,9 +121,21 @@ class TestBridgeUser(TestCase):
         self.assertEqual(cus_field.value,
                          "FBB38FE46A7C11D5A4AE0004AC494FFE")
 
+    def test_get_all_users_url(self):
+        self.assertEqual(
+            _get_all_users_url(False, True),
+            "/api/author/users?includes%5B%5D=&limit=1000")
+        self.assertEqual(
+            _get_all_users_url(False, False),
+            "/api/author/users?includes%5B%5D=custom_fields&limit=1000")
+        self.assertEqual(
+            _get_all_users_url(True, False),
+            "/api/author/users?includes%5B%5D=custom_fields&"
+            "includes%5B%5D=course_summary&limit=1000")
+
     def test_get_alluser(self):
         user_list = get_all_users(include_course_summary=True)
-        self.assertEqual(len(user_list), 3)
+        self.assertEqual(len(user_list), 2)
         user = user_list[0]
         self.assertEqual(user.name, "Eight Class Student")
         self.assertEqual(user.bridge_id, 106)
@@ -136,19 +148,16 @@ class TestBridgeUser(TestCase):
         cus_field = user.custom_fields[0]
         self.assertEqual(cus_field.value,
                          "9136CCB8F66711D5BE060004AC494FFE")
-        user = user_list[2]
-        self.assertEqual(user.name, "None Average Student")
-        self.assertEqual(user.bridge_id, 17)
-        cus_field = user.custom_fields[0]
-        self.assertEqual(cus_field.value,
-                         "00000000000000000000000000000001")
 
         user_list = get_all_users(include_course_summary=False)
         self.assertEqual(len(user_list), 3)
         self.assertEqual(user_list[0].bridge_id, 106)
         self.assertEqual(user_list[1].bridge_id, 195)
         self.assertEqual(user_list[2].bridge_id, 17)
-        cus_field = user_list[2].custom_fields[0]
+        user = user_list[2]
+        self.assertEqual(user.name, "None Average Student")
+        self.assertEqual(user.bridge_id, 17)
+        cus_field = user.custom_fields[0]
         self.assertEqual(cus_field.value,
                          "00000000000000000000000000000001")
 
