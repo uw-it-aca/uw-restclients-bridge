@@ -124,7 +124,7 @@ class TestBridgeUser(TestCase):
     def test_get_all_users_url(self):
         self.assertEqual(
             _get_all_users_url(False, True),
-            "/api/author/users?includes=&limit=1000")
+            "/api/author/users?includes%5B%5D=&limit=1000")
         self.assertEqual(
             _get_all_users_url(False, False),
             "/api/author/users?includes%5B%5D=custom_fields&limit=1000")

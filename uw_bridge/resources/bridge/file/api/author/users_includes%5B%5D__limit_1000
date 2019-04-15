@@ -1,6 +1,6 @@
 {
   "meta":{
-     "next":"/api/author/users?after=xxx&includes="},
+     "next":"/api/author/users?after=xxx&includes%5B%5D="},
   "linked":{},
   "users":[
        {"id":"17637",

@@ -13,9 +13,9 @@ from uw_bridge import get_resource, patch_resource, post_resource,\
 logger = logging.getLogger(__name__)
 ADMIN_URL_PREFIX = "/api/admin/users"
 AUTHOR_URL_PREFIX = "/api/author/users"
-NO_INCLUDES = "includes="
-CUSTOM_FIELD = "includes%5B%5D=custom_fields"
-COURSE_SUMMARY = "includes%5B%5D=course_summary"
+INCLUDES = "includes%5B%5D="
+CUSTOM_FIELD = "{0}custom_fields".format(INCLUDES)
+COURSE_SUMMARY = "{0}course_summary".format(INCLUDES)
 PAGE_MAX_ENTRY = "limit=1000"
 RESTORE_SUFFIX = "restore"
 
@@ -137,7 +137,7 @@ def get_user_by_id(bridge_id, exclude_deleted=True,
 
 def _get_all_users_url(include_course_summary, no_custom_fields):
     if not include_course_summary and no_custom_fields:
-        url = "{0}?{1}".format(author_uid_url(None), NO_INCLUDES)
+        url = "{0}?{1}".format(author_uid_url(None), INCLUDES)
     else:
         url = author_uid_url(None, no_custom_fields=no_custom_fields)
         if include_course_summary:
