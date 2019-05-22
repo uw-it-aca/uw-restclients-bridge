@@ -4,10 +4,9 @@ import logging
 import re
 from dateutil.parser import parse
 from restclients_core.exceptions import InvalidNetID
-from uw_pws import PWS
-from uw_bridge.models import BridgeUser, BridgeUserRole, BridgeCustomField
-from uw_bridge import get_resource, patch_resource, post_resource,\
-    delete_resource
+from uw_bridge.models import BridgeUser, BridgeCustomField, BridgeUserRole
+from uw_bridge import (
+    get_resource, patch_resource, post_resource, delete_resource)
 
 
 logger = logging.getLogger(__name__)
@@ -16,6 +15,7 @@ AUTHOR_URL_PREFIX = "/api/author/users"
 INCLUDES = "includes%5B%5D="
 CUSTOM_FIELD = "{0}custom_fields".format(INCLUDES)
 COURSE_SUMMARY = "{0}course_summary".format(INCLUDES)
+MANAGER = "{0}manager".format(INCLUDES)
 PAGE_MAX_ENTRY = "limit=1000"
 RESTORE_SUFFIX = "restore"
 
@@ -111,28 +111,44 @@ def delete_user_by_id(bridge_id):
     return resp.status == 204
 
 
-def get_user(uwnetid, exclude_deleted=True, include_course_summary=True):
-    """
-    Return a list of BridgeUsers objects with custom fields
-    """
-    url = author_uid_url(uwnetid, no_custom_fields=False)
+def __add_includes_to_url(url, include_manager, include_course_summary):
     if include_course_summary:
         url = "{0}&{1}".format(url, COURSE_SUMMARY)
+    if include_manager:
+        url = "{0}&{1}".format(url, MANAGER)
+    return url
+
+
+def get_user(uwnetid,
+             include_course_summary=True,
+             include_manager=True):
+    """
+    Return a list of BridgeUsers objects with custom fields,
+    only returns the active records associated with the uid.
+    """
+    url = __add_includes_to_url(
+        author_uid_url(uwnetid, no_custom_fields=False),
+        include_manager, include_course_summary)
     resp = get_resource(url)
-    return _process_json_resp_data(resp, exclude_deleted=exclude_deleted)
+    return _process_json_resp_data(resp)
 
 
-def get_user_by_id(bridge_id, exclude_deleted=True,
-                   include_course_summary=True):
+def get_user_by_id(bridge_id,
+                   include_course_summary=True,
+                   include_manager=True,
+                   include_deleted=True):
     """
     :param bridge_id: integer
-    Return a list of BridgeUsers objects with custom fields
+    Return a list of BridgeUsers objects of active (and deleted)
+    records associated with the bridge_id with custom fields.
     """
-    url = author_id_url(bridge_id, no_custom_fields=False)
-    if include_course_summary:
-        url = "{0}&{1}".format(url, COURSE_SUMMARY)
+    url = __add_includes_to_url(
+        author_id_url(bridge_id, no_custom_fields=False),
+        include_manager, include_course_summary)
+    if include_deleted:
+        url = "{0}&{1}".format(url, "with_deleted=true")
     resp = get_resource(url)
-    return _process_json_resp_data(resp, exclude_deleted=exclude_deleted)
+    return _process_json_resp_data(resp, include_deleted=include_deleted)
 
 
 def _get_all_users_url(include_course_summary, no_custom_fields):
@@ -147,7 +163,7 @@ def _get_all_users_url(include_course_summary, no_custom_fields):
 
 def get_all_users(include_course_summary=True, no_custom_fields=False):
     """
-    Return a list of BridgeUser objects with custom fields.
+    Return a list of BridgeUser objects of the active user records.
     """
     resp = get_resource(
         _get_all_users_url(include_course_summary, no_custom_fields))
@@ -155,26 +171,34 @@ def get_all_users(include_course_summary=True, no_custom_fields=False):
                                    no_custom_fields=no_custom_fields)
 
 
-def __restore_user_url(base_url):
-    return "{0}/{1}?{2}".format(base_url, RESTORE_SUFFIX, CUSTOM_FIELD)
+def __restore_user_url(base_url, include_manager):
+    return __add_includes_to_url(
+        "{0}/{1}?{2}".format(base_url, RESTORE_SUFFIX, CUSTOM_FIELD),
+        include_manager, False)
 
 
-def restore_user(uwnetid, no_custom_fields=True):
+def restore_user(uwnetid,
+                 include_manager=True,
+                 no_custom_fields=False):
     """
     :param no_custom_fields: return objects with or without custom_fields
     Return a list of BridgeUsers objects
     """
-    resp = post_resource(__restore_user_url(author_uid_url(uwnetid)), '{}')
+    url = __restore_user_url(author_uid_url(uwnetid), include_manager)
+    resp = post_resource(url, '{}')
     return _process_json_resp_data(resp, no_custom_fields=no_custom_fields)
 
 
-def restore_user_by_id(bridge_id, no_custom_fields=True):
+def restore_user_by_id(bridge_id,
+                       include_manager=True,
+                       no_custom_fields=False):
     """
     :param bridge_id: integer
     :param no_custom_fields: return objects with or without custom_fields
     Return a list of BridgeUsers objects
     """
-    resp = post_resource(__restore_user_url(author_id_url(bridge_id)), '{}')
+    url = __restore_user_url(author_id_url(bridge_id), include_manager)
+    resp = post_resource(url, '{}')
     return _process_json_resp_data(resp, no_custom_fields=no_custom_fields)
 
 
@@ -193,7 +217,7 @@ def update_user(bridge_user):
 
 
 def _process_json_resp_data(resp,
-                            exclude_deleted=True,
+                            include_deleted=False,
                             no_custom_fields=False):
     """
     process the response and return a list of BridgeUser
@@ -207,8 +231,9 @@ def _process_json_resp_data(resp,
             link_url = resp_data["meta"]["next"]
 
         try:
-            bridge_users = _process_apage(resp_data, bridge_users,
-                                          exclude_deleted,
+            bridge_users = _process_apage(resp_data,
+                                          bridge_users,
+                                          include_deleted,
                                           no_custom_fields)
         except Exception as err:
             logger.error("{0} in {1}".format(str(err), resp_data))
@@ -220,16 +245,16 @@ def _process_json_resp_data(resp,
     return bridge_users
 
 
-def _process_apage(resp_data, bridge_users,
-                   exclude_deleted, no_custom_fields):
+def _process_apage(resp_data,
+                   bridge_users,
+                   include_deleted,
+                   no_custom_fields):
     custom_fields_value_dict = _get_custom_fields_dict(resp_data["linked"],
                                                        no_custom_fields)
     # a dict of {custom_field_value_id: BridgeCustomField}
 
     for user_data in resp_data["users"]:
-
-        if (exclude_deleted and
-            "deleted_at" in user_data and
+        if (include_deleted is False and
                 user_data.get("deleted_at") is not None):
             # skip deleted entry
             continue
@@ -238,14 +263,13 @@ def _process_apage(resp_data, bridge_users,
             bridge_id=int(user_data["id"]),
             netid=re.sub('@uw.edu', '', user_data["uid"]),
             email=user_data.get("email", ""),
-            name=user_data.get("name", None),
             full_name=user_data.get("full_name", ""),
             first_name=user_data.get("first_name", None),
             last_name=user_data.get("last_name", None),
-            sortable_name=user_data.get("sortable_name", None),
+            department=user_data.get("department", None),
+            job_title=user_data.get("job_title", None),
             locale=user_data.get("locale", "en"),
-            is_manager=user_data.get("is_manager"),
-            avatar_url=user_data.get("avatar_url", None),
+            is_manager=user_data.get("is_manager", None),
             deleted_at=None,
             logged_in_at=None,
             updated_at=None,
@@ -254,6 +278,9 @@ def _process_apage(resp_data, bridge_users,
             completed_courses_count=user_data.get("completed_courses_count",
                                                   -1),
             )
+
+        if user_data.get("manager_id") is not None:
+            user.manager_id = int(user_data["manager_id"])
 
         if user_data.get("deleted_at") is not None:
             user.deleted_at = parse(user_data["deleted_at"])
