@@ -5,10 +5,12 @@ import re
 from dateutil.parser import parse
 from restclients_core.exceptions import InvalidNetID
 from uw_bridge.models import BridgeUser, BridgeCustomField, BridgeUserRole
+from uw_bridge.custom_field import CustomFields
 from uw_bridge import (
     get_resource, patch_resource, post_resource, delete_resource)
 
 
+CUSTOM_FIELDS = CustomFields()
 logger = logging.getLogger(__name__)
 ADMIN_URL_PREFIX = "/api/admin/users"
 AUTHOR_URL_PREFIX = "/api/author/users"
@@ -297,11 +299,12 @@ def _process_apage(resp_data,
         if (no_custom_fields is False and
                 "links" in user_data and len(user_data["links"]) > 0 and
                 "custom_field_values" in user_data["links"]):
+
             values = user_data["links"]["custom_field_values"]
             for custom_field_value in values:
                 if custom_field_value in custom_fields_value_dict:
-                    user.custom_fields.append(
-                        custom_fields_value_dict[custom_field_value])
+                    custom_field = custom_fields_value_dict[custom_field_value]
+                    user.custom_fields[custom_field.name] = custom_field
 
         if "roles" in user_data and len(user_data["roles"]) > 0:
             for role_data in user_data["roles"]:
@@ -326,7 +329,10 @@ def _get_custom_fields_dict(linked_data, no_custom_fields):
     # a dict of {custom_field_id: name}
 
     for id_name_pair in linked_data["custom_fields"]:
-        custom_fields_name_dict[id_name_pair["id"]] = id_name_pair["name"]
+        field_id = id_name_pair.get("id")
+        name = id_name_pair.get("name")
+        if field_id is not None and name is not None:
+            custom_fields_name_dict[field_id] = name.lower()
 
     for value in linked_data["custom_field_values"]:
         custom_field = BridgeCustomField(
@@ -338,15 +344,6 @@ def _get_custom_fields_dict(linked_data, no_custom_fields):
         custom_fields_value_dict[custom_field.value_id] = custom_field
 
     return custom_fields_value_dict
-
-
-def get_regid_from_custom_fields(custom_fields):
-    if custom_fields is not None and\
-            len(custom_fields) > 0:
-        for custom_field in custom_fields:
-            if custom_field.is_regid():
-                return custom_field.value
-    return None
 
 
 def _get_roles_from_json(role_data):

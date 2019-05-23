@@ -3,12 +3,17 @@ from restclients_core import models
 
 
 class BridgeCustomField(models.Model):
+
+    # Field names:
     REGID_NAME = "regid"
-    EMPLOYEE_ID_NAME = "eid"
-    STUDENT_ID_NAME = "sid"
-    POS1_JOB_CODE = "job_code1"
-    POS1_JOB_CLAS = "job_class1"  # employment program, job classification
-    POS1_ORG_CODE = "org_code1"
+    EMPLOYEE_ID_NAME = "employee_id"
+    STUDENT_ID_NAME = "student_id"
+
+    POS1_BUDGET_CODE = "pos1_budget_code"
+    POS1_JOB_CODE = "pos1_job_code"
+    POS1_JOB_CLAS = "pos1_job_class"    # job classification
+    POS1_ORG_CODE = "pos1_org_code"
+    POS1_ORG_NAME = "pos1_org_name"
 
     field_id = models.CharField(max_length=10)
     name = models.CharField(max_length=64)
@@ -16,32 +21,34 @@ class BridgeCustomField(models.Model):
     value = models.CharField(max_length=256, null=True, default=None)
 
     def is_regid(self):
-        return self.name.lower() == BridgeCustomField.REGID_NAME
+        return self.name == BridgeCustomField.REGID_NAME
 
     def is_employee_id(self):
-        return self.name.lower() == BridgeCustomField.EMPLOYEE_ID_NAME
+        return self.name == BridgeCustomField.EMPLOYEE_ID_NAME
 
     def is_student_id(self):
-        return self.name.lower() == BridgeCustomField.STUDENT_ID_NAME
+        return self.name == BridgeCustomField.STUDENT_ID_NAME
+
+    def is_pos1_budget_code(self):
+        return self.name == BridgeCustomField.POS1_BUDGET_CODE
 
     def is_pos1_job_code(self):
-        return self.name.lower() == BridgeCustomField.POS1_JOB_CODE
+        return self.name == BridgeCustomField.POS1_JOB_CODE
 
     def is_pos1_job_clas(self):
-        return self.name.lower() == BridgeCustomField.POS1_JOB_CLAS
+        return self.name == BridgeCustomField.POS1_JOB_CLAS
 
     def is_pos1_org_code(self):
-        return self.name.lower() == BridgeCustomField.POS1_ORG_CODE
+        return self.name == BridgeCustomField.POS1_ORG_CODE
+
+    def is_pos1_org_name(self):
+        return self.name == BridgeCustomField.POS1_ORG_NAME
 
     def to_json(self):
         value = {"custom_field_id": self.field_id,
-                 "value": self.value,
-                 }
-        try:
-            if self.value_id:
-                value["id"] = self.value_id
-        except AttributeError:
-            pass
+                 "value": self.value}
+        if self.value_id is not None:
+            value["id"] = self.value_id
         return value
 
     def __init__(self, *args, **kwargs):
@@ -101,6 +108,13 @@ class BridgeUser(models.Model):
     def no_learning_history(self):
         return self.has_course_summary() and self.completed_courses_count == 0
 
+    def get_custom_field(self, field_name):
+        # return the corresponding BridgeCustomField object
+        return self.custom_fields.get(field_name)
+
+    def has_custom_field(self):
+        return len(self.custom_fields.keys()) > 0
+
     def to_json(self, omit_custom_fields=False):
         ret_user = {"uid": self.get_uid(),
                     "full_name": self.full_name,
@@ -109,7 +123,7 @@ class BridgeUser(models.Model):
 
         if len(self.custom_fields) > 0 or not omit_custom_fields:
             custom_fields_json = []
-            for field in self.custom_fields:
+            for field in self.custom_fields.values():
                 custom_fields_json.append(field.to_json())
             ret_user["custom_fields"] = custom_fields_json
 
@@ -159,7 +173,9 @@ class BridgeUser(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(BridgeUser, self).__init__(*args, **kwargs)
-        self.custom_fields = []
+        self.custom_fields = {}
+        # A user may have a long list of custom fields.
+        # For a quick lookup, use a dict of {field_name: BridgeCustomField}
         self.roles = []
 
 

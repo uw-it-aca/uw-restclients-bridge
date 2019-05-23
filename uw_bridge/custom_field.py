@@ -5,47 +5,48 @@ from uw_bridge import get_resource
 
 
 logger = logging.getLogger(__name__)
-URL_PREFIX = "/api/author/custom_fields"
+URL = "/api/author/custom_fields"
 
 
-def get_custom_fields():
-    """
-    Return a list of BridgeCustomField objects
-    """
-    resp = get_resource(URL_PREFIX)
-    return _process_json_resp_data(resp)
+class CustomFields:
 
+    def __init__(self):
+        self.fields = []
+        self.name_id_map = {}
+        self.get_custom_fields()
 
-def _process_json_resp_data(resp):
-    fields = []
-    resp_data = json.loads(resp)
-    if "custom_fields" in resp_data and\
-            len(resp_data["custom_fields"]) > 0:
-        for value in resp_data["custom_fields"]:
-            if "id" in value and "name" in value:
-                custom_field = BridgeCustomField(field_id=value["id"],
-                                                 name=value["name"]
-                                                 )
-                fields.append(custom_field)
-    return fields
+    def get_custom_fields(self):
+        resp = get_resource(URL)
+        resp_data = json.loads(resp)
+        if resp_data.get("custom_fields") is None:
+            return
 
+        for field in resp_data["custom_fields"]:
+            if (field.get("id") is not None and
+                    field.get("name") is not None):
+                cf = BridgeCustomField(field_id=field["id"],
+                                       name=field["name"].lower())
+                self.fields.append(cf)
+                self.name_id_map[cf.name] = cf.field_id
 
-def get_regid_field_id():
-    fields = get_custom_fields()
-    if len(fields) > 0:
-        for cf in fields:
-            if cf.is_regid():
-                return cf.field_id
-    return None
+    def get_fields(self):
+        """
+        return the list of BridgeCustomField objects
+        """
+        return self.fields
 
+    def get_field_id(self, field_name):
+        return self.name_id_map.get(field_name)
 
-def new_regid_custom_field(uwregid):
-    """
-    Return a BridgeCustomField object for REGID
-    to be used in a POST, PATCH request
-    """
-    return BridgeCustomField(
-        field_id=get_regid_field_id(),
-        name=BridgeCustomField.REGID_NAME,
-        value=uwregid
-        )
+    def new_custom_field(self,
+                         field_name,
+                         field_value):
+        """
+        Return a new BridgeCustomField object
+        to be used in a POST (add new), PATCH (update) request
+        :param field_name: use field name defined in models.BridgeCustomField
+        """
+        return BridgeCustomField(
+            field_id=self.get_field_id(field_name),
+            name=field_name,
+            value=field_value)

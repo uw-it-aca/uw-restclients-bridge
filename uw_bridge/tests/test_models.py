@@ -16,7 +16,7 @@ class TestBridgeModel(TestCase):
     def test_bridge_custom_field(self):
         bcf = BridgeCustomField(value_id="1",
                                 field_id="5",
-                                name="Regid",
+                                name=BridgeCustomField.REGID_NAME,
                                 value="787")
         self.assertEqual(bcf.to_json(),
                          {'id': '1',
@@ -24,40 +24,14 @@ class TestBridgeModel(TestCase):
                           'custom_field_id': '5'})
         self.assertTrue(bcf.is_regid())
         self.assertEqual(bcf.value, '787')
-
-        bcf = BridgeCustomField(field_id="5",
-                                name="REGID")
-        self.assertEqual(bcf.to_json(),
-                         {'custom_field_id': '5',
-                          'value': None})
         self.assertIsNotNone(str(bcf))
 
         bcf = BridgeCustomField(field_id="5",
-                                name="REGID",
+                                name=BridgeCustomField.REGID_NAME,
                                 value="787")
         self.assertEqual(bcf.to_json(),
                          {'custom_field_id': '5',
                           'value': '787'})
-
-        bcf = BridgeCustomField(field_id="6",
-                                name="Eid")
-        self.assertTrue(bcf.is_employee_id())
-
-        bcf = BridgeCustomField(field_id="6",
-                                name="Sid")
-        self.assertTrue(bcf.is_student_id())
-
-        bcf = BridgeCustomField(field_id="6",
-                                name="Job_code1")
-        self.assertTrue(bcf.is_pos1_job_code())
-
-        bcf = BridgeCustomField(field_id="6",
-                                name="Job_class1")
-        self.assertTrue(bcf.is_pos1_job_clas())
-
-        bcf = BridgeCustomField(field_id="6",
-                                name="Org_code1")
-        self.assertTrue(bcf.is_pos1_org_code())
 
     def test_bridge_user(self):
         user = BridgeUser()
@@ -79,6 +53,7 @@ class TestBridgeModel(TestCase):
         self.assertFalse(user.is_deleted())
         self.assertFalse(user.has_course_summary())
         self.assertFalse(user.no_learning_history())
+        self.assertFalse(user.has_custom_field())
 
         user.first_name = "Iam A"
         user.last_name = "Student"
@@ -131,14 +106,21 @@ class TestBridgeModel(TestCase):
 
         regid = BridgeCustomField(
             field_id="5",
-            name="REGID",
+            name=BridgeCustomField.REGID_NAME,
             value="12345678901234567890123456789012")
         eid = BridgeCustomField(
             field_id="6",
-            name="EID",
+            name=BridgeCustomField.EMPLOYEE_ID_NAME,
             value="1234567")
-        user.custom_fields.append(regid)
-        user.custom_fields.append(eid)
+
+        user.custom_fields[regid.name] = regid
+        user.custom_fields[eid.name] = eid
+        self.assertTrue(user.has_custom_field())
+
+        self.assertEqual(
+            user.get_custom_field(BridgeCustomField.REGID_NAME).value,
+            "12345678901234567890123456789012")
+
         self.assertIsNotNone(str(user))
         self.assertEqual(
             user.to_json(),
