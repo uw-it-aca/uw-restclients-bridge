@@ -2,11 +2,11 @@ from unittest import TestCase
 from restclients_core.exceptions import DataFailureException
 from uw_bridge.models import BridgeUser, BridgeCustomField
 from uw_bridge.custom_field import CustomFields
-from uw_bridge.user import (CUSTOM_FIELDS,
+from uw_bridge.user import (
     get_user, get_all_users, get_user_by_id, _process_json_resp_data,
     _process_apage, add_user, admin_id_url, admin_uid_url, author_id_url,
     author_uid_url, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX, _upd_uid_req_body,
-    change_uid, replace_uid, restore_user_by_id, update_user,
+    change_uid, replace_uid, restore_user_by_id, update_user, CUSTOM_FIELDS,
     restore_user, delete_user, delete_user_by_id, _get_all_users_url)
 from uw_bridge.tests import fdao_bridge_override
 
