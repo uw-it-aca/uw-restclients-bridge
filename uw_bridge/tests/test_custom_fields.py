@@ -1,6 +1,6 @@
 from unittest import TestCase
 from uw_bridge.models import BridgeCustomField
-from uw_bridge.custom_field import CustomFields
+from uw_bridge.custom_fields import CustomFields
 from uw_bridge.tests import fdao_bridge_override
 
 

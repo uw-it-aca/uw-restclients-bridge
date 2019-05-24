@@ -5,12 +5,14 @@ import re
 from dateutil.parser import parse
 from restclients_core.exceptions import InvalidNetID
 from uw_bridge.models import BridgeUser, BridgeCustomField, BridgeUserRole
-from uw_bridge.custom_field import CustomFields
+from uw_bridge.custom_fields import CustomFields
+from uw_bridge.user_roles import UserRoles
 from uw_bridge import (
     get_resource, patch_resource, post_resource, delete_resource)
 
 
 CUSTOM_FIELDS = CustomFields()
+USER_ROLES = UserRoles()
 logger = logging.getLogger(__name__)
 ADMIN_URL_PREFIX = "/api/admin/users"
 AUTHOR_URL_PREFIX = "/api/author/users"
@@ -306,9 +308,10 @@ def _process_apage(resp_data,
                     custom_field = custom_fields_value_dict[custom_field_value]
                     user.custom_fields[custom_field.name] = custom_field
 
-        if "roles" in user_data and len(user_data["roles"]) > 0:
+        if user_data.get("roles") is not None:
             for role_data in user_data["roles"]:
-                user.roles.append(_get_roles_from_json(role_data))
+                user.roles.append(
+                    USER_ROLES.new_user_role_by_id(role_data))
 
         bridge_users.append(user)
 
@@ -344,9 +347,3 @@ def _get_custom_fields_dict(linked_data, no_custom_fields):
         custom_fields_value_dict[custom_field.value_id] = custom_field
 
     return custom_fields_value_dict
-
-
-def _get_roles_from_json(role_data):
-    # roles in data is a list of strings currently.
-    return BridgeUserRole(role_id=role_data,
-                          name=role_data)

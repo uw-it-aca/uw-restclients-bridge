@@ -6,14 +6,8 @@ from uw_bridge.models import BridgeUser, BridgeCustomField, BridgeUserRole
 
 class TestBridgeModel(TestCase):
 
-    def test_bridge_user_role(self):
-        role = BridgeUserRole(role_id='user', name='user')
-        self.assertEqual(role.to_json(),
-                         {"id": "user", "name": "user"})
-        self.assertEqual(str(role),
-                         '{"id": "user", "name": "user"}')
-
     def test_bridge_custom_field(self):
+        self.assertEqual(len(BridgeCustomField.POS1), 5)
         bcf = BridgeCustomField(value_id="1",
                                 field_id="5",
                                 name=BridgeCustomField.REGID_NAME,
@@ -183,3 +177,13 @@ class TestBridgeModel(TestCase):
         self.assertEqual(role.to_json(),
                          {'id': 'author', 'name': 'Author'})
         self.assertTrue(role.is_author())
+        self.assertIsNotNone(str(role))
+
+        role = BridgeUserRole(role_id="account_admin", name="Account Admin")
+        self.assertTrue(role.is_account_admin())
+
+        role = BridgeUserRole(role_id="it_admin", name="IT Admin")
+        self.assertTrue(role.is_it_admin())
+
+        role = BridgeUserRole(role_id="admin", name="Admin")
+        self.assertTrue(role.is_admin())

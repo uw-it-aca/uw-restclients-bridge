@@ -31,7 +31,7 @@
        "sortable_name":"Student, James Average",
        "email":"javerage@uw.edu",
        "locale":"en",
-       "roles":["account_admin"],
+       "roles":["account_admin", "author", "fb412e52"],
        "name":"James Average Student",
        "avatar_url":null,
        "updated_at":"2016-07-25T16:24:42.131-07:00",

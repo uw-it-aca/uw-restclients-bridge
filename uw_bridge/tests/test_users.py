@@ -1,7 +1,6 @@
 from unittest import TestCase
 from restclients_core.exceptions import DataFailureException
 from uw_bridge.models import BridgeUser, BridgeCustomField
-from uw_bridge.custom_field import CustomFields
 from uw_bridge.user import (
     get_user, get_all_users, get_user_by_id, _process_json_resp_data,
     _process_apage, add_user, admin_id_url, admin_uid_url, author_id_url,
@@ -143,6 +142,11 @@ class TestBridgeUser(TestCase):
         self.assertEqual(cus_field.name, "regid")
         self.assertEqual(cus_field.value,
                          "9136CCB8F66711D5BE060004AC494FFE")
+
+        self.assertEqual(len(user.roles), 3)
+        self.assertTrue(user.roles[0].is_account_admin())
+        self.assertTrue(user.roles[1].is_author())
+        self.assertTrue(user.roles[2].is_campus_admin())
 
     def test_get_user_with_deleted(self):
         user_list = get_user_by_id(17637,

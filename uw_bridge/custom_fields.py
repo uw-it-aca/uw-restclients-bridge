@@ -46,7 +46,6 @@ class CustomFields:
         to be used in a POST (add new), PATCH (update) request
         :param field_name: use field name defined in models.BridgeCustomField
         """
-        return BridgeCustomField(
-            field_id=self.get_field_id(field_name),
-            name=field_name,
-            value=field_value)
+        return BridgeCustomField(field_id=self.get_field_id(field_name),
+                                 name=field_name,
+                                 value=field_value)

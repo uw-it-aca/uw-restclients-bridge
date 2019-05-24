@@ -8,12 +8,13 @@ class BridgeCustomField(models.Model):
     REGID_NAME = "regid"
     EMPLOYEE_ID_NAME = "employee_id"
     STUDENT_ID_NAME = "student_id"
-
     POS1_BUDGET_CODE = "pos1_budget_code"
     POS1_JOB_CODE = "pos1_job_code"
     POS1_JOB_CLAS = "pos1_job_class"    # job classification
     POS1_ORG_CODE = "pos1_org_code"
     POS1_ORG_NAME = "pos1_org_name"
+    POS1 = [POS1_BUDGET_CODE, POS1_JOB_CODE, POS1_JOB_CLAS,
+            POS1_ORG_CODE, POS1_ORG_NAME]
 
     field_id = models.CharField(max_length=10)
     name = models.CharField(max_length=64)
@@ -169,6 +170,13 @@ class BridgeUser(models.Model):
             json_data["updated_at"] = self.updated_at
             json_data["completed_courses_count"] =\
                 self.completed_courses_count
+
+            if len(self.roles) > 0:
+                roles_json = []
+                for role in self.roles:
+                    roles_json.append(role.to_json())
+                json_data["roles"] = roles_json
+
         return json.dumps(json_data, default=str)
 
     def __init__(self, *args, **kwargs):
@@ -180,28 +188,37 @@ class BridgeUser(models.Model):
 
 
 class BridgeUserRole(models.Model):
-    CAMPUS_ADMIN_NAME = 'campus admin'
-    AUTHOR_NAME = 'author'
+    # Role names
+    ACCOUNT_ADMIN_NAME = "Account Admin"
+    ADMIN_NAME = "Admin"
+    AUTHOR_NAME = "Author"
+    CAMPUS_ADMIN_NAME = "Campus Admin"
+    IT_ADMIN_NAME = "IT Admin"
 
     role_id = models.CharField(max_length=64)
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, null=True, default=None)
 
-    def is_campus_admin(self):
-        return self.name.lower() == BridgeUserRole.CAMPUS_ADMIN_NAME
+    def is_account_admin(self):
+        return self.name == BridgeUserRole.ACCOUNT_ADMIN_NAME
+
+    def is_admin(self):
+        return self.name == BridgeUserRole.ADMIN_NAME
 
     def is_author(self):
-        return self.name.lower() == BridgeUserRole.AUTHOR_NAME
+        return self.name == BridgeUserRole.AUTHOR_NAME
+
+    def is_campus_admin(self):
+        return self.name == BridgeUserRole.CAMPUS_ADMIN_NAME
+
+    def is_it_admin(self):
+        return self.name == BridgeUserRole.IT_ADMIN_NAME
 
     def __init__(self, *args, **kwargs):
         super(BridgeUserRole, self).__init__(*args, **kwargs)
         # self.permissions = []   # unknown 2016/11
 
     def to_json(self):
-        return {
-            "id": self.role_id,
-            "name": self.name,
-            # "permissions": self.permissions
-            }
+        return {"id": self.role_id, "name": self.name}
 
     def __str__(self):
         return json.dumps(self.to_json())

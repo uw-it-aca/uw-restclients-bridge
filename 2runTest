@@ -1,0 +1,6 @@
+source bin/activate
+coverage run uw_bridge/test.py -v
+#coverage run uw_bridge/test.py uw_bridge.tests.test_models
+#coverage run uw_bridge/test.py uw_bridge.tests.test_users
+#coverage run uw_bridge/test.py uw_bridge.tests.test_user_roles
+#coverage run uw_bridge/test.py uw_bridge.tests.test_custom_fields
