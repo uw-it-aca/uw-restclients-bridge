@@ -147,6 +147,7 @@ class TestBridgeUser(TestCase):
         self.assertTrue(user.roles[0].is_account_admin())
         self.assertTrue(user.roles[1].is_author())
         self.assertTrue(user.roles[2].is_campus_admin())
+        self.assertIsNotNone(str(user))
 
     def test_get_user_with_deleted(self):
         user_list = get_user_by_id(17637,
