@@ -74,18 +74,10 @@ def post_resource(url, body):
 
 def put_resource(url, body):
     """
-    Put request with the given json body
-    :returns: http response data
+    Update the entire resource
     Bridge PUT seems to have the same effect as PATCH currently.
     """
-    response = DAO.putURL(url, PHEADER, body)
-    req_data = "PUT {0}: {1}".format(url, body)
-    _log_resp(req_data, response)
-
-    if response.status != 200:
-        _raise_exception(req_data, url, response)
-
-    return response.data
+    pass
 
 
 def _log_resp(req_data, response):
