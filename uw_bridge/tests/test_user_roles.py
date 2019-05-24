@@ -28,7 +28,6 @@ class TestBridgeUserRoles(TestCase):
         self.assertEqual(cfs.get_role_id(
             BridgeUserRole.IT_ADMIN_NAME), "it_admin")
 
-
         self.assertEqual(cfs.get_role_name("account_admin"),
                          BridgeUserRole.ACCOUNT_ADMIN_NAME)
         self.assertEqual(cfs.get_role_name("admin"),
