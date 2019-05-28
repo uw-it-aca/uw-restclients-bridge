@@ -10,7 +10,6 @@ from uw_bridge.dao import Bridge_DAO
 
 
 logger = logging.getLogger(__name__)
-DAO = Bridge_DAO()
 DHEADER = {"Content-Type": "application/json",
            'Accept': 'application/json'}
 GHEADER = {'Accept': 'application/json'}
@@ -20,7 +19,7 @@ PHEADER = {"Content-Type": "application/json",
 
 
 def delete_resource(url):
-    response = DAO.deleteURL(url, DHEADER)
+    response = Bridge_DAO().deleteURL(url, DHEADER)
     req_data = "DELETE {0}".format(url)
     _log_resp(req_data, response)
 
@@ -32,7 +31,7 @@ def delete_resource(url):
 
 
 def get_resource(url):
-    response = DAO.getURL(url, GHEADER)
+    response = Bridge_DAO().getURL(url, GHEADER)
     req_data = "GET {0}".format(url)
     _log_resp(req_data, response)
 
@@ -47,7 +46,7 @@ def patch_resource(url, body):
     Patch resource with the given json body
     :returns: http response data
     """
-    response = DAO.patchURL(url, PHEADER, body)
+    response = Bridge_DAO().patchURL(url, PHEADER, body)
     req_data = "PATCH {0}: {1}".format(url, body)
     _log_resp(req_data, response)
 
@@ -62,7 +61,7 @@ def post_resource(url, body):
     Post resource with the given json body
     :returns: http response data
     """
-    response = DAO.postURL(url, PHEADER, body)
+    response = Bridge_DAO().postURL(url, PHEADER, body)
     req_data = "POST {0}: {1}".format(url, body)
     _log_resp(req_data, response)
 
