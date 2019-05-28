@@ -1,3 +1,8 @@
+"""
+Interacte with Bridge user roles API.
+You only need a single UserRoles object in your app.
+"""
+
 import logging
 import json
 from uw_bridge.models import BridgeUserRole

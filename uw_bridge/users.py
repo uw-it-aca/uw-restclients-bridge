@@ -1,3 +1,8 @@
+"""
+Interacte with Bridge Users API.
+You only need a single Users object in your app.
+"""
+
 from datetime import datetime
 import json
 import logging

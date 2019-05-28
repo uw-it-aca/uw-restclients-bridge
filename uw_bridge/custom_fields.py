@@ -1,3 +1,8 @@
+"""
+Interacte with Bridge custom_fields API.
+You only need a single CustomFields object in your app.
+"""
+
 import logging
 import json
 from uw_bridge.models import BridgeCustomField

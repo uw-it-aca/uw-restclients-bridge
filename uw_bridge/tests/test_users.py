@@ -1,7 +1,7 @@
 from unittest import TestCase
 from restclients_core.exceptions import DataFailureException
 from uw_bridge.models import BridgeUser, BridgeCustomField
-from uw_bridge.user import Users, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX
+from uw_bridge.users import Users, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX
 from uw_bridge.tests import fdao_bridge_override
 
 
