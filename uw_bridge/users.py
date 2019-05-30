@@ -33,7 +33,7 @@ class Users:
         self.custom_fields = CustomFields()
         self.user_roles = UserRoles()
 
-    def __add_custom_field_to_url(self, base_url, no_custom_fields):
+    def _add_custom_field_to_url(self, base_url, no_custom_fields):
         if no_custom_fields is True:
             return base_url
         return "{0}?{1}".format(base_url, CUSTOM_FIELD)
@@ -42,35 +42,37 @@ class Users:
         url = ADMIN_URL_PREFIX
         if bridge_id:
             url = "{0}/{1:d}".format(url, bridge_id)
-        return self.__add_custom_field_to_url(url, no_custom_fields)
+        return self._add_custom_field_to_url(url, no_custom_fields)
 
     def admin_uid_url(self, uwnetid, no_custom_fields=True):
         url = ADMIN_URL_PREFIX
         if uwnetid is not None:
             url = "{0}/uid%3A{1}%40uw%2Eedu".format(url, uwnetid)
-        return self.__add_custom_field_to_url(url, no_custom_fields)
+        return self._add_custom_field_to_url(url, no_custom_fields)
 
     def author_id_url(self, bridge_id, no_custom_fields=True):
         url = AUTHOR_URL_PREFIX
         if bridge_id:
             url = "{0}/{1:d}".format(url, bridge_id)
-        return self.__add_custom_field_to_url(url, no_custom_fields)
+        return self._add_custom_field_to_url(url, no_custom_fields)
 
     def author_uid_url(self, uwnetid, no_custom_fields=True):
         url = AUTHOR_URL_PREFIX
         if uwnetid is not None:
             url = "{0}/uid%3A{1}%40uw%2Eedu".format(url, uwnetid)
-        return self.__add_custom_field_to_url(url, no_custom_fields)
+        return self._add_custom_field_to_url(url, no_custom_fields)
 
     def add_user(self, bridge_user):
         """
         Add the bridge_user given
-        Return a list of BridgeUser objects with custom fields
+        Return a BridgeUser objects with custom fields
         """
         url = self.admin_uid_url(None, no_custom_fields=False)
         body = json.dumps(bridge_user.to_json_post(), separators=(',', ':'))
         resp = post_resource(url, body)
-        return self._process_json_resp_data(resp, no_custom_fields=True)
+        return self._get_obj_from_list(
+            "add_user ({0})".format(bridge_user),
+            self._process_json_resp_data(resp, no_custom_fields=True))
 
     def _upd_uid_req_body(self, new_uwnetid):
         return "{0}{1}@uw.edu{2}".format(
@@ -80,23 +82,27 @@ class Users:
         """
         :param bridge_id: integer
         :param no_custom_fields: return objects with or without custom_fields
-        Return a list of BridgeUser objects
+        Return a BridgeUser objects
         """
         url = self.author_id_url(bridge_id, no_custom_fields=no_custom_fields)
         resp = patch_resource(url, self._upd_uid_req_body(new_uwnetid))
-        return self._process_json_resp_data(resp,
-                                            no_custom_fields=no_custom_fields)
+        return self._get_obj_from_list(
+            "change_uid({0})".format(new_uwnetid),
+            self._process_json_resp_data(resp,
+                                         no_custom_fields=no_custom_fields))
 
     def replace_uid(self, old_uwnetid, new_uwnetid, no_custom_fields=True):
         """
         :param no_custom_fields: return objects with or without custom_fields
-        Return a list of BridgeUser objects
+        Return a BridgeUser objects
         """
         url = self.author_uid_url(old_uwnetid,
                                   no_custom_fields=no_custom_fields)
         resp = patch_resource(url, self._upd_uid_req_body(new_uwnetid))
-        return self._process_json_resp_data(resp,
-                                            no_custom_fields=no_custom_fields)
+        return self._get_obj_from_list(
+            "replace_uid({0}->{1})".format(old_uwnetid, new_uwnetid),
+            self._process_json_resp_data(resp,
+                                         no_custom_fields=no_custom_fields))
 
     def delete_user(self, uwnetid):
         """
@@ -115,9 +121,9 @@ class Users:
         resp = delete_resource(self.admin_id_url(bridge_id))
         return resp.status == 204
 
-    def __add_includes_to_url(self, url,
-                              include_manager,
-                              include_course_summary):
+    def _add_includes_to_url(self, url,
+                             include_manager,
+                             include_course_summary):
         if include_course_summary:
             url = "{0}&{1}".format(url, COURSE_SUMMARY)
         if include_manager:
@@ -128,14 +134,16 @@ class Users:
                  include_course_summary=True,
                  include_manager=True):
         """
-        Return a list of BridgeUsers objects with custom fields,
+        Return a BridgeUsers objects with custom fields,
         only returns the active records associated with the uid.
         """
-        url = self.__add_includes_to_url(
+        url = self._add_includes_to_url(
             self.author_uid_url(uwnetid, no_custom_fields=False),
             include_manager, include_course_summary)
         resp = get_resource(url)
-        return self._process_json_resp_data(resp)
+        return self._get_obj_from_list(
+            "get_user by netid('{0}')".format(uwnetid),
+            self._process_json_resp_data(resp))
 
     def get_user_by_id(self, bridge_id,
                        include_course_summary=True,
@@ -143,17 +151,19 @@ class Users:
                        include_deleted=True):
         """
         :param bridge_id: integer
-        Return a list of BridgeUsers objects of active (and deleted)
+        Return an BridgeUsers objects of active (and deleted)
         records associated with the bridge_id with custom fields.
         """
-        url = self.__add_includes_to_url(
+        url = self._add_includes_to_url(
             self.author_id_url(bridge_id, no_custom_fields=False),
             include_manager, include_course_summary)
         if include_deleted:
             url = "{0}&{1}".format(url, "with_deleted=true")
         resp = get_resource(url)
-        return self._process_json_resp_data(resp,
-                                            include_deleted=include_deleted)
+        return self._get_obj_from_list(
+            "get_user by bridge_id('{0}')".format(bridge_id),
+            self._process_json_resp_data(resp,
+                                         include_deleted=include_deleted))
 
     def _get_all_users_url(self,
                            include_course_summary,
@@ -176,8 +186,8 @@ class Users:
         return self._process_json_resp_data(
             resp, no_custom_fields=no_custom_fields)
 
-    def __restore_user_url(self, base_url, include_manager):
-        return self.__add_includes_to_url(
+    def _restore_user_url(self, base_url, include_manager):
+        return self._add_includes_to_url(
             "{0}/{1}?{2}".format(base_url, RESTORE_SUFFIX, CUSTOM_FIELD),
             include_manager, False)
 
@@ -186,13 +196,15 @@ class Users:
                      no_custom_fields=False):
         """
         :param no_custom_fields: return objects with or without custom_fields
-        Return a list of BridgeUsers objects
+        Return a BridgeUsers objects
         """
-        url = self.__restore_user_url(self.author_uid_url(uwnetid),
-                                      include_manager)
+        url = self._restore_user_url(self.author_uid_url(uwnetid),
+                                     include_manager)
         resp = post_resource(url, '{}')
-        return self._process_json_resp_data(
-            resp, no_custom_fields=no_custom_fields)
+        return self._get_obj_from_list(
+            "restore_user by netid({0})".format(uwnetid),
+            self._process_json_resp_data(
+                resp, no_custom_fields=no_custom_fields))
 
     def restore_user_by_id(self, bridge_id,
                            include_manager=True,
@@ -200,13 +212,15 @@ class Users:
         """
         :param bridge_id: integer
         :param no_custom_fields: return objects with or without custom_fields
-        Return a list of BridgeUsers objects
+        Return a BridgeUsers objects
         """
-        url = self.__restore_user_url(self.author_id_url(bridge_id),
-                                      include_manager)
+        url = self._restore_user_url(self.author_id_url(bridge_id),
+                                     include_manager)
         resp = post_resource(url, '{}')
-        return self._process_json_resp_data(
-            resp, no_custom_fields=no_custom_fields)
+        return self._get_obj_from_list(
+            "restore_user by bridge_id({0})".format(bridge_id),
+            self._process_json_resp_data(
+                resp, no_custom_fields=no_custom_fields))
 
     def update_user(self, bridge_user):
         """
@@ -221,7 +235,9 @@ class Users:
                                       no_custom_fields=False)
         body = json.dumps(bridge_user.to_json_patch(), separators=(',', ':'))
         resp = patch_resource(url, body)
-        return self._process_json_resp_data(resp)
+        return self._get_obj_from_list(
+            "update_user ({0})".format(bridge_user.to_json()),
+            self._process_json_resp_data(resp))
 
     def _process_json_resp_data(self, resp,
                                 include_deleted=False,
@@ -250,7 +266,8 @@ class Users:
             resp = get_resource(link_url)
         return bridge_users
 
-    def _process_apage(self, resp_data,
+    def _process_apage(self,
+                       resp_data,
                        bridge_users,
                        include_deleted,
                        no_custom_fields):
@@ -338,3 +355,16 @@ class Users:
             custom_field.name = custom_fields_name_dict[custom_field.field_id]
             custom_fields_value_dict[custom_field.value_id] = custom_field
         return custom_fields_value_dict
+
+    def _get_obj_from_list(self, action, rlist):
+        if len(rlist) == 0:
+            return None
+
+        if len(rlist) > 1:
+            data = []
+            for u in rlist:
+                data.append(u.to_json())
+            logger.error(
+                "{0} returns multiple Bridge user accounts: {1}".format(
+                    action, data))
+        return rlist[0]
