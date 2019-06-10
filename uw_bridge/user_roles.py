@@ -24,16 +24,14 @@ class UserRoles:
     def get_user_roles(self):
         resp = get_resource(URL)
         resp_data = json.loads(resp)
-        if resp_data.get("roles") is None:
-            return
-
-        for role in resp_data["roles"]:
-            if (role.get("id") is not None and
-                    role.get("name") is not None):
-                cf = BridgeUserRole(role_id=role["id"], name=role["name"])
-                self.roles.append(cf)
-                self.id_name_map[cf.role_id] = cf.name
-                self.name_ip_map[cf.name] = cf.role_id
+        if resp_data.get("roles") is not None:
+            for role in resp_data["roles"]:
+                if (role.get("id") is not None and
+                        role.get("name") is not None):
+                    cf = BridgeUserRole(role_id=role["id"], name=role["name"])
+                    self.roles.append(cf)
+                    self.id_name_map[cf.role_id] = cf.name
+                    self.name_ip_map[cf.name] = cf.role_id
 
     def get_roles(self):
         """
