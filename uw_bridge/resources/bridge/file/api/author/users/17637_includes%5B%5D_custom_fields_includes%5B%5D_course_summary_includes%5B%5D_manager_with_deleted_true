@@ -39,6 +39,7 @@
        "welcomedAt":"2016-08-08T13:58:20.635-07:00",
        "loggedInAt":"2016-08-08T13:58:20.635-07:00",
        "is_manager":true,
+       "manager_id": "195",
        "job_title":null,
        "bio":null,
        "department":null,

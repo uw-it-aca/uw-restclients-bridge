@@ -171,26 +171,24 @@ class BridgeUser(models.Model):
         user_data["custom_field_values"] = self.custom_fields_json()
         return {"user": user_data}
 
-    def __str__(self, orig=True):
+    def __str__(self):
         json_data = self.to_json()
-        if orig:
-            json_data["deleted_at"] = self.deleted_at
-            json_data["logged_in_at"] = self.logged_in_at
-            json_data["updated_at"] = self.updated_at
-            json_data["completed_courses_count"] =\
-                self.completed_courses_count
+        json_data["deleted_at"] = self.deleted_at
+        json_data["logged_in_at"] = self.logged_in_at
+        json_data["updated_at"] = self.updated_at
+        json_data["completed_courses_count"] = self.completed_courses_count
 
-            if len(self.custom_fields):
-                custom_fields = []
-                for field in self.custom_fields.values():
-                    custom_fields.append(field.to_json_short())
-                json_data["custom_fields"] = custom_fields
+        if len(self.custom_fields):
+            custom_fields = []
+            for field in self.custom_fields.values():
+                custom_fields.append(field.to_json_short())
+            json_data["custom_fields"] = custom_fields
 
-            if len(self.roles) > 0:
-                roles_json = []
-                for role in self.roles:
-                    roles_json.append(role.to_json())
-                json_data["roles"] = roles_json
+        if len(self.roles) > 0:
+            roles_json = []
+            for role in self.roles:
+                roles_json.append(role.to_json())
+            json_data["roles"] = roles_json
 
         return json.dumps(json_data, default=str)
 

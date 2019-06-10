@@ -36,8 +36,6 @@ class TestBridgeModel(TestCase):
         user = BridgeUser(netid="iamstudent",
                           email="iamstudent@uw.edu",
                           full_name="Iam Student",
-                          first_name="Iam A",
-                          last_name="Student",
                           department="XYZ",
                           job_title="y",
                           manager_netid="mana",
@@ -46,34 +44,34 @@ class TestBridgeModel(TestCase):
                          {"id": 1,
                           'uid': 'iamstudent@uw.edu',
                           'email': 'iamstudent@uw.edu',
-                          'first_name': 'Iam A',
                           'full_name': 'Iam Student',
-                          'last_name': 'Student',
                           'manager_id': "uid:mana@uw.edu",
-                          'sortable_name': 'Student, Iam A',
                           'department': "XYZ",
                           'job_title': "y"})
 
         self.assertEqual(user.get_uid(), "iamstudent@uw.edu")
         self.assertIsNotNone(str(user))
         self.assertTrue(user.has_bridge_id())
-        self.assertTrue(user.has_last_name())
-        self.assertTrue(user.has_first_name())
+        self.assertFalse(user.has_last_name())
+        self.assertFalse(user.has_first_name())
         self.assertTrue(user.has_manager())
         self.assertFalse(user.is_deleted())
         self.assertFalse(user.has_course_summary())
         self.assertFalse(user.no_learning_history())
         self.assertFalse(user.has_custom_field())
-        self.assertEqual(user.get_sortable_name(),
-                         "Student, Iam A")
 
         user.updated_at = parse("2016-08-08T13:58:20.635-07:00")
         self.assertIsNotNone(str(user))
 
-        user.manager_netid = "a"
+        user.first_name = "Iam A"
+        user.last_name = "Student"
+        user.manager_netid = None
         user.manager_id = 0
         user.bridge_id = 0
-        self.assertTrue(user.has_manager())
+        self.assertEqual(user.get_sortable_name(), "Student, Iam A")
+        self.assertTrue(user.has_last_name())
+        self.assertTrue(user.has_first_name())
+        self.assertFalse(user.has_manager())
         self.assertEqual(
             user.to_json(),
             {
@@ -83,7 +81,6 @@ class TestBridgeModel(TestCase):
              'last_name': 'Student',
              'department': "XYZ",
              'job_title': "y",
-             'manager_id': 'uid:a@uw.edu',
              'sortable_name': 'Student, Iam A',
              'uid': 'iamstudent@uw.edu'})
 
@@ -112,6 +109,7 @@ class TestBridgeModel(TestCase):
             "12345678901234567890123456789012")
 
         self.assertIsNotNone(str(user))
+
         self.assertEqual(
             user.custom_fields_json(),
             [{'value': '12345678901234567890123456789012',
@@ -134,7 +132,6 @@ class TestBridgeModel(TestCase):
                 'sortable_name': 'Student, Iam A',
                 'department': 'XYZ',
                 'job_title': 'y',
-                'manager_id': 'uid:a@uw.edu',
                 'custom_field_values': [
                     {'value': '12345678901234567890123456789012',
                      'links': {
@@ -149,6 +146,7 @@ class TestBridgeModel(TestCase):
                              'type': 'custom_fields'}},
                      'id': '2'}]}})
 
+        user.manager_id = 1
         self.assertEqual(
             user.to_json_post(),
             {'users': [{
@@ -161,7 +159,7 @@ class TestBridgeModel(TestCase):
                 'sortable_name': 'Student, Iam A',
                 'department': 'XYZ',
                 'job_title': 'y',
-                'manager_id': 'uid:a@uw.edu',
+                'manager_id': 1,
                 'custom_field_values': [
                     {'value': '12345678901234567890123456789012',
                      'links': {
