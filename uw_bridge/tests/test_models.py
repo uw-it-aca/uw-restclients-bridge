@@ -15,9 +15,9 @@ class TestBridgeModel(TestCase):
         self.assertEqual(bcf.to_json(),
                          {'id': '1',
                           'value': '787',
-                          'links': {'custom_field': 
-                                    {'id': '5',
-                                     'type': 'custom_fields'}}})
+                          'links': {'custom_field': {
+                              'id': '5',
+                              'type': 'custom_fields'}}})
         self.assertTrue(bcf.is_regid())
         self.assertEqual(bcf.value, '787')
         self.assertIsNotNone(str(bcf))
@@ -26,9 +26,9 @@ class TestBridgeModel(TestCase):
                                 name=BridgeCustomField.REGID_NAME,
                                 value="787")
         self.assertEqual(bcf.to_json(),
-                         {'links': {'custom_field':
-                                    {'id': '5',
-                                     'type': 'custom_fields'}},
+                         {'links': {'custom_field': {
+                             'id': '5',
+                             'type': 'custom_fields'}},
                           'value': '787'})
         self.assertIsNotNone(str(bcf))
 
@@ -139,7 +139,7 @@ class TestBridgeModel(TestCase):
                     {'value': '12345678901234567890123456789012',
                      'links': {
                          'custom_field': {
-                             'id': '5', 
+                             'id': '5',
                              'type': 'custom_fields'}},
                      'id': '1'},
                     {'value': '123456789',
