@@ -64,37 +64,46 @@ class Users:
 
     def add_user(self, bridge_user):
         """
-        Add the bridge_user given
-        Return a BridgeUser objects with custom fields
+        Add the given bridge_user
+        :param bridge_user: BridgeUser object
+        Return a BridgeUser object returned
         """
-        url = self.admin_uid_url(None, no_custom_fields=False)
-        body = json.dumps(bridge_user.to_json_post(), separators=(',', ':'))
+        url = self.admin_uid_url(None)
+        body = json.dumps(bridge_user.to_json_post(),
+                          separators=(',', ':'))
         resp = post_resource(url, body)
         return self._get_obj_from_list(
             "add_user ({0})".format(bridge_user),
-            self._process_json_resp_data(resp, no_custom_fields=True))
+            self._process_json_resp_data(resp,
+                                         no_custom_fields=True))
 
     def _upd_uid_req_body(self, new_uwnetid):
         return "{0}{1}@uw.edu{2}".format(
             '{"user":{"uid":"', new_uwnetid, '"}}')
 
-    def change_uid(self, bridge_id, new_uwnetid, no_custom_fields=True):
+    def change_uid(self, bridge_id, new_uwnetid,
+                   no_custom_fields=True):
         """
         :param bridge_id: integer
-        :param no_custom_fields: return objects with or without custom_fields
-        Return a BridgeUser objects
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        Return a BridgeUser object
         """
-        url = self.author_id_url(bridge_id, no_custom_fields=no_custom_fields)
+        url = self.author_id_url(bridge_id,
+                                 no_custom_fields=no_custom_fields)
         resp = patch_resource(url, self._upd_uid_req_body(new_uwnetid))
         return self._get_obj_from_list(
             "change_uid({0})".format(new_uwnetid),
             self._process_json_resp_data(resp,
                                          no_custom_fields=no_custom_fields))
 
-    def replace_uid(self, old_uwnetid, new_uwnetid, no_custom_fields=True):
+    def replace_uid(self, old_uwnetid, new_uwnetid,
+                    no_custom_fields=True):
         """
-        :param no_custom_fields: return objects with or without custom_fields
-        Return a BridgeUser objects
+        :param old_uwnetid, new_uwnetid: UwNetID strings
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        Return a BridgeUser object
         """
         url = self.author_uid_url(old_uwnetid,
                                   no_custom_fields=no_custom_fields)
@@ -134,8 +143,7 @@ class Users:
                  include_course_summary=True,
                  include_manager=True):
         """
-        Return a BridgeUsers objects with custom fields,
-        only returns the active records associated with the uid.
+        Return a BridgeUsers object
         """
         url = self._add_includes_to_url(
             self.author_uid_url(uwnetid, no_custom_fields=False),
@@ -151,8 +159,7 @@ class Users:
                        include_deleted=True):
         """
         :param bridge_id: integer
-        Return an BridgeUsers objects of active (and deleted)
-        records associated with the bridge_id with custom fields.
+        Return a BridgeUsers object
         """
         url = self._add_includes_to_url(
             self.author_id_url(bridge_id, no_custom_fields=False),
@@ -176,9 +183,12 @@ class Users:
                 url = "{0}&{1}".format(url, COURSE_SUMMARY)
         return "{0}&{1}".format(url, PAGE_MAX_ENTRY)
 
-    def get_all_users(self, include_course_summary=True,
-                      no_custom_fields=False):
+    def get_all_users(self,
+                      include_course_summary=False,
+                      no_custom_fields=True):
         """
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
         Return a list of BridgeUser objects of the active user records.
         """
         resp = get_resource(self._get_all_users_url(include_course_summary,
@@ -186,17 +196,23 @@ class Users:
         return self._process_json_resp_data(
             resp, no_custom_fields=no_custom_fields)
 
-    def _restore_user_url(self, base_url, include_manager):
+    def _restore_user_url(self,
+                          base_url,
+                          include_manager):
         return self._add_includes_to_url(
             "{0}/{1}?{2}".format(base_url, RESTORE_SUFFIX, CUSTOM_FIELD),
             include_manager, False)
 
-    def restore_user(self, uwnetid,
+    def restore_user(self,
+                     uwnetid,
                      include_manager=True,
                      no_custom_fields=False):
         """
-        :param no_custom_fields: return objects with or without custom_fields
-        Return a BridgeUsers objects
+        :param include_manager: specify if you want manager data
+                                 in the response.
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        Return a BridgeUsers object
         """
         url = self._restore_user_url(self.author_uid_url(uwnetid),
                                      include_manager)
@@ -206,13 +222,17 @@ class Users:
             self._process_json_resp_data(
                 resp, no_custom_fields=no_custom_fields))
 
-    def restore_user_by_id(self, bridge_id,
+    def restore_user_by_id(self,
+                           bridge_id,
                            include_manager=True,
                            no_custom_fields=False):
         """
         :param bridge_id: integer
-        :param no_custom_fields: return objects with or without custom_fields
-        Return a BridgeUsers objects
+        :param include_manager: specify if you want manager_id
+                                 in the response.
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        return a BridgeUsers object
         """
         url = self._restore_user_url(self.author_id_url(bridge_id),
                                      include_manager)
@@ -222,22 +242,27 @@ class Users:
             self._process_json_resp_data(
                 resp, no_custom_fields=no_custom_fields))
 
-    def update_user(self, bridge_user):
+    def update_user(self,
+                    bridge_user,
+                    no_custom_fields=True):
         """
         Update only the user attributes provided.
-        Return a list of BridgeUsers objects with custom fields.
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        Return a BridgeUsers object
         """
         if bridge_user.bridge_id:
             url = self.author_id_url(bridge_user.bridge_id,
-                                     no_custom_fields=False)
+                                     no_custom_fields=no_custom_fields)
         else:
             url = self.author_uid_url(bridge_user.netid,
-                                      no_custom_fields=False)
+                                      no_custom_fields=no_custom_fields)
         body = json.dumps(bridge_user.to_json_patch(), separators=(',', ':'))
         resp = patch_resource(url, body)
         return self._get_obj_from_list(
             "update_user ({0})".format(bridge_user.to_json()),
-            self._process_json_resp_data(resp))
+            self._process_json_resp_data(resp,
+                                         no_custom_fields=no_custom_fields))
 
     def _process_json_resp_data(self, resp,
                                 include_deleted=False,
@@ -349,9 +374,9 @@ class Users:
 
         for value in linked_data["custom_field_values"]:
             custom_field = BridgeCustomField(
+                field_id=value["links"]["custom_field"]["id"],
                 value_id=value["id"],
-                value=value["value"],
-                field_id=value["links"]["custom_field"]["id"])
+                value=value["value"])
             custom_field.name = custom_fields_name_dict[custom_field.field_id]
             custom_fields_value_dict[custom_field.value_id] = custom_field
         return custom_fields_value_dict

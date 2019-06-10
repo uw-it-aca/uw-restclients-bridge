@@ -46,19 +46,23 @@ class BridgeCustomField(models.Model):
         return self.name == BridgeCustomField.POS1_ORG_NAME
 
     def to_json(self):
-        value = {"custom_field_id": self.field_id,
-                 "value": self.value}
+        value = {"value": self.value,
+                 "links": {
+                     "custom_field": {
+                         "id": self.field_id,
+                         "type": "custom_fields"}}}
         if self.value_id is not None:
             value["id"] = self.value_id
         return value
+
+    def to_json_short(self):
+        return {"name": self.name, "value": self.value}
 
     def __init__(self, *args, **kwargs):
         super(BridgeCustomField, self).__init__(*args, **kwargs)
 
     def __str__(self):
-        data = self.to_json()
-        data["name"] = self.name
-        return json.dumps(data)
+        return json.dumps(self.to_json_short())
 
 
 class BridgeUser(models.Model):
@@ -122,12 +126,6 @@ class BridgeUser(models.Model):
                     "email": self.email,
                     }
 
-        if len(self.custom_fields) > 0 or not omit_custom_fields:
-            custom_fields_json = []
-            for field in self.custom_fields.values():
-                custom_fields_json.append(field.to_json())
-            ret_user["custom_fields"] = custom_fields_json
-
         if self.has_bridge_id():
             ret_user["id"] = self.bridge_id
 
@@ -154,13 +152,24 @@ class BridgeUser(models.Model):
 
         return ret_user
 
+    def custom_fields_json(self):
+        custom_fields_json = []
+        if len(self.custom_fields) > 0:
+            for field in self.custom_fields.values():
+                custom_fields_json.append(field.to_json())
+        return custom_fields_json
+
     def to_json_post(self):
         # for POST (add new or restore a user)
-        return {"users": [self.to_json()]}
+        user_data = self.to_json()
+        user_data["custom_field_values"] = self.custom_fields_json()
+        return {"users": [user_data]}
 
     def to_json_patch(self):
         # for PATCH, PUT (update)
-        return {"user": self.to_json(omit_custom_fields=True)}
+        user_data = self.to_json()
+        user_data["custom_field_values"] = self.custom_fields_json()
+        return {"user": user_data}
 
     def __str__(self, orig=True):
         json_data = self.to_json()
@@ -170,6 +179,12 @@ class BridgeUser(models.Model):
             json_data["updated_at"] = self.updated_at
             json_data["completed_courses_count"] =\
                 self.completed_courses_count
+
+            if len(self.custom_fields):
+                custom_fields = []
+                for field in self.custom_fields.values():
+                    custom_fields.append(field.to_json_short())
+                json_data["custom_fields"] = custom_fields
 
             if len(self.roles) > 0:
                 roles_json = []

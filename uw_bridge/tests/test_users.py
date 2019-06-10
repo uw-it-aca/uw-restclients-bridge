@@ -104,9 +104,6 @@ class TestBridgeUser(TestCase):
         self.assertEqual(
             user.to_json_patch(),
             {'user': {
-                'custom_fields': [{'custom_field_id': '9',
-                                   'id': '754517',
-                                   'value': '6B79E4406A7D1'}],
                 'uid': 'bill@uw.edu',
                 'full_name': 'Bill Smith',
                 'email': 'bill@uw.edu',
@@ -116,7 +113,14 @@ class TestBridgeUser(TestCase):
                 'sortable_name': 'Smith, Bill',
                 'department': 'Unix Engineering',
                 'job_title': 'Software Engineer',
-                'manager_id': 10}})
+                'manager_id': 10,
+                "custom_field_values": [
+                    {'value': '6B79E4406A7D1',
+                     'links': {
+                         'custom_field': {
+                             'id': '9',
+                             'type': 'custom_fields'}},
+                     'id': '754517'}]}})
 
     def test_process_err(self):
         self.assertRaises(KeyError,
@@ -151,12 +155,30 @@ class TestBridgeUser(TestCase):
         self.assertTrue(user.has_course_summary())
         self.assertTrue(user.no_learning_history())
 
+        self.assertEqual(len(user.custom_fields), 8)
         cus_field = user.get_custom_field(BridgeCustomField.REGID_NAME)
         self.assertEqual(cus_field.value_id, "1")
         self.assertEqual(cus_field.field_id, "5")
         self.assertEqual(cus_field.name, "regid")
         self.assertEqual(cus_field.value,
                          "9136CCB8F66711D5BE060004AC494FFE")
+        cus_field = user.get_custom_field(BridgeCustomField.EMPLOYEE_ID_NAME)
+        self.assertEqual(cus_field.value_id, "2")
+        self.assertEqual(cus_field.field_id, "6")
+        self.assertEqual(cus_field.name, "employee_id")
+        self.assertEqual(cus_field.value, "123456789")
+
+        cus_field = user.get_custom_field(BridgeCustomField.STUDENT_ID_NAME)
+        self.assertEqual(cus_field.value_id, "3")
+        self.assertEqual(cus_field.field_id, "7")
+        self.assertEqual(cus_field.name, "student_id")
+        self.assertEqual(cus_field.value, "1033334")
+
+        cus_field = user.get_custom_field(BridgeCustomField.POS1_BUDGET_CODE)
+        self.assertEqual(cus_field.value_id, "4")
+        self.assertEqual(cus_field.field_id, "11")
+        self.assertEqual(cus_field.name, "pos1_budget_code")
+        self.assertEqual(cus_field.value, "2070001000")
 
         self.assertEqual(len(user.roles), 3)
         self.assertTrue(user.roles[0].is_account_admin())
@@ -168,6 +190,9 @@ class TestBridgeUser(TestCase):
         user = TestBridgeUser.users.get_user_by_id(
             17637, include_course_summary=True, include_deleted=True)
         self.verify_bill(user)
+        cus_field = user.get_custom_field(BridgeCustomField.REGID_NAME)
+        self.assertEqual(cus_field.value,
+                         "FBB38FE46A7C11D5A4AE0004AC494FFE")
         self.assertTrue(user.is_deleted())
 
         self.assertRaises(DataFailureException,
@@ -178,6 +203,7 @@ class TestBridgeUser(TestCase):
 
     def verify_bill(self, user):
         self.assertEqual(user.bridge_id, 17637)
+        self.assertEqual(user.get_uid(), "bill@uw.edu")
         self.assertEqual(user.first_name, "Bill Average")
         self.assertEqual(user.last_name, "Teacher")
         self.assertEqual(user.full_name, "Bill Average Teacher")
@@ -185,10 +211,6 @@ class TestBridgeUser(TestCase):
         self.assertEqual(user.email, "bill@u.washington.edu")
         self.assertEqual(user.netid, "bill")
         self.assertTrue(user.is_manager)
-        self.assertEqual(user.get_uid(), "bill@uw.edu")
-        cus_field = user.get_custom_field(BridgeCustomField.REGID_NAME)
-        self.assertEqual(cus_field.value,
-                         "FBB38FE46A7C11D5A4AE0004AC494FFE")
 
     def test_get_all_users_url(self):
         self.assertEqual(
@@ -204,7 +226,7 @@ class TestBridgeUser(TestCase):
 
     def test_get_alluser(self):
         user_list = TestBridgeUser.users.get_all_users(
-            include_course_summary=True)
+            include_course_summary=True, no_custom_fields=False)
         self.assertEqual(len(user_list), 2)
         user = user_list[0]
         self.assertEqual(user.full_name, "Eight Class Student")
@@ -220,7 +242,7 @@ class TestBridgeUser(TestCase):
                          "9136CCB8F66711D5BE060004AC494FFE")
 
         user_list = TestBridgeUser.users.get_all_users(
-            include_course_summary=False)
+            include_course_summary=False, no_custom_fields=False)
         self.assertEqual(len(user_list), 3)
         self.assertEqual(user_list[0].bridge_id, 106)
         self.assertEqual(user_list[1].bridge_id, 195)
@@ -232,8 +254,7 @@ class TestBridgeUser(TestCase):
         self.assertEqual(cus_field.value,
                          "00000000000000000000000000000001")
 
-        user_list = TestBridgeUser.users.get_all_users(
-            include_course_summary=False, no_custom_fields=True)
+        user_list = TestBridgeUser.users.get_all_users()
         self.assertEqual(len(user_list), 3)
         self.assertEqual(user_list[0].bridge_id, 106)
         self.assertEqual(user_list[1].bridge_id, 195)
@@ -264,11 +285,6 @@ class TestBridgeUser(TestCase):
         self.assertEqual(added.get_uid(), "eight@uw.edu")
         self.assertEqual(
             str(added.updated_at), '2016-09-06 21:42:48.821000-07:00')
-        # cus_field = added.custom_fields[0]
-        # self.assertEqual(cus_field.value,
-        #                 "12345678901234567890123456789012")
-        # self.assertEqual(cus_field.field_id, "5")
-        # self.assertEqual(cus_field.value_id, "922202")
 
     def test_delete_user(self):
         self.assertTrue(TestBridgeUser.users.delete_user("javerage"))
@@ -285,18 +301,18 @@ class TestBridgeUser(TestCase):
     def test_change_uid(self):
         self.assertRaises(DataFailureException,
                           TestBridgeUser.users.change_uid,
-                          195, "billchanged")
+                          195, "bill")
 
-        user = TestBridgeUser.users.change_uid(17637, "billchanged")
+        user = TestBridgeUser.users.change_uid(17637, "bill")
         self.verify_uid(user)
         self.assertEqual(len(user.custom_fields), 0)
 
-        user = TestBridgeUser.users.replace_uid("bill", "billchanged")
+        user = TestBridgeUser.users.replace_uid("bill", "bill")
         self.verify_uid(user)
         self.assertEqual(len(user.custom_fields), 0)
 
         user = TestBridgeUser.users.replace_uid(
-            "oldbill", "billchanged", no_custom_fields=False)
+            "oldbill", "bill", no_custom_fields=False)
         self.verify_uid(user)
         self.assertEqual(len(user.custom_fields), 1)
         cus_field = user.get_custom_field(BridgeCustomField.REGID_NAME)
@@ -333,18 +349,18 @@ class TestBridgeUser(TestCase):
                          "FBB38FE46A7C11D5A4AE0004AC494FFE")
 
         user = TestBridgeUser.users.restore_user(
-            "billchanged", include_manager=False, no_custom_fields=True)
+            "bill", include_manager=False, no_custom_fields=True)
         self.verify_uid(user)
         self.assertFalse(user.has_custom_field())
 
         user = TestBridgeUser.users.restore_user(
-            "billchanged", include_manager=False)
+            "bill", include_manager=False)
         self.verify_uid(user)
         cus_fie = user.get_custom_field(BridgeCustomField.REGID_NAME)
         self.assertEqual(cus_fie.value,
                          "FBB38FE46A7C11D5A4AE0004AC494FFE")
 
-        user = TestBridgeUser.users.restore_user("billchanged")
+        user = TestBridgeUser.users.restore_user("bill")
         self.verify_uid(user)
         self.assertTrue(user.has_manager())
         cus_fie = user.get_custom_field(BridgeCustomField.REGID_NAME)
@@ -353,8 +369,12 @@ class TestBridgeUser(TestCase):
 
     def test_update_user(self):
         orig_user = TestBridgeUser.users.get_user_by_id(17637)
-        upded_user = TestBridgeUser.users.update_user(orig_user)
+        upded_user = TestBridgeUser.users.update_user(orig_user,
+                                                      no_custom_fields=False)
         self.verify_bill(upded_user)
+        cus_field = upded_user.get_custom_field(BridgeCustomField.REGID_NAME)
+        self.assertEqual(cus_field.value,
+                         "FBB38FE46A7C11D5A4AE0004AC494FFE")
         self.assertFalse(upded_user.is_deleted())
         self.assertEqual(str(upded_user.updated_at),
                          '2016-09-08 13:58:20.635000-07:00')
@@ -366,6 +386,7 @@ class TestBridgeUser(TestCase):
                           full_name='Bill Average Teacher')
         upded_user = TestBridgeUser.users.update_user(user)
         self.verify_bill(upded_user)
+        self.assertIsNone(user.get_custom_field(BridgeCustomField.REGID_NAME))
 
         orig_user = TestBridgeUser.users.get_user('javerage')
         self.assertRaises(DataFailureException,
@@ -373,4 +394,4 @@ class TestBridgeUser(TestCase):
 
     def verify_uid(self, user):
         self.assertEqual(user.bridge_id, 17637)
-        self.assertEqual(user.get_uid(), "billchanged@uw.edu")
+        self.assertEqual(user.get_uid(), "bill@uw.edu")

@@ -22,7 +22,7 @@
    },
    "users":[
        {"id":"17637",
-       "uid":"billchanged@uw.edu",
+       "uid":"bill@uw.edu",
        "hris_id":null,
        "first_name":"Bill Average",
        "last_name":"Teacher",
@@ -30,8 +30,6 @@
        "sortable_name":"Teacher, Bill Average",
        "email":"bill@u.washington.edu",
        "is_manager":true,
-       "manager_name": "X Y",
-       "manager_id": "1",
        "locale":"en",
        "roles":[],
        "name":"Bill Average Teacher",

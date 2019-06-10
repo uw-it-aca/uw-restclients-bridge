@@ -41,13 +41,16 @@ class TestBridgeCustomFields(TestCase):
             BridgeCustomField.REGID_NAME,
             '12345678901234567890123456789012')
         self.assertTrue(custom_field.is_regid())
-        self.assertEqual(custom_field.to_json(),
+        self.assertEqual(custom_field.to_json_short(),
                          {'value': '12345678901234567890123456789012',
-                          'custom_field_id': '5'})
+                          'name': 'regid'})
         self.assertIsNotNone(str(custom_field))
 
         custom_field.value_id = "34536456"
         self.assertEqual(custom_field.to_json(),
                          {'value': '12345678901234567890123456789012',
                           'id': '34536456',
-                          'custom_field_id': '5'})
+                          'links': {
+                              'custom_field': {
+                                  'id': '5',
+                                  'type': 'custom_fields'}}})
