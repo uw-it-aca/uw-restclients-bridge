@@ -99,7 +99,7 @@ class TestBridgeUser(TestCase):
                   "manager_name": None,
                   "manager_id": "10",
                   "links": {"custom_field_values": ["754517"]}}]},
-            bridge_users, False, False)
+            bridge_users, False)
         user = bridge_users[0]
         self.assertEqual(
             user.to_json_patch(),
@@ -124,7 +124,6 @@ class TestBridgeUser(TestCase):
                           TestBridgeUser.users._process_apage,
                           {"meta": {}, "linked": {}},
                           [],
-                          include_deleted=False,
                           no_custom_fields=False)
 
         bridge_users = TestBridgeUser.users._process_json_resp_data(
