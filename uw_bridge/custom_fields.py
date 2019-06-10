@@ -25,12 +25,10 @@ class CustomFields:
         resp_data = json.loads(resp)
         if resp_data.get("custom_fields") is not None:
             for field in resp_data["custom_fields"]:
-                if (field.get("id") is not None and
-                        field.get("name") is not None):
-                    cf = BridgeCustomField(field_id=field["id"],
-                                           name=field["name"].lower())
-                    self.fields.append(cf)
-                    self.name_id_map[cf.name] = cf.field_id
+                cf = BridgeCustomField(field_id=field.get("id"),
+                                       name=field.get("name").lower())
+                self.fields.append(cf)
+                self.name_id_map[cf.name] = cf.field_id
 
     def get_fields(self):
         """

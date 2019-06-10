@@ -26,9 +26,10 @@ class UserRoles:
         resp_data = json.loads(resp)
         if resp_data.get("roles") is not None:
             for role in resp_data["roles"]:
-                if (role.get("id") is not None and
-                        role.get("name") is not None):
-                    cf = BridgeUserRole(role_id=role["id"], name=role["name"])
+                if (role.get("is_deprecated") is False or
+                        role.get("is_deprecated") is None):
+                    cf = BridgeUserRole(role_id=role.get("id"),
+                                        name=role.get("name"))
                     self.roles.append(cf)
                     self.id_name_map[cf.role_id] = cf.name
                     self.name_ip_map[cf.name] = cf.role_id
