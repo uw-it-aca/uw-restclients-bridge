@@ -116,10 +116,7 @@ class TestBridgeUser(TestCase):
                 'manager_id': 10,
                 "custom_field_values": [
                     {'value': '6B79E4406A7D1',
-                     'links': {
-                         'custom_field': {
-                             'id': '9',
-                             'type': 'custom_fields'}},
+                     'custom_field_id': '9',
                      'id': '754517'}]}})
 
     def test_process_err(self):

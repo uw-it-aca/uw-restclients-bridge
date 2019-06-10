@@ -50,7 +50,4 @@ class TestBridgeCustomFields(TestCase):
         self.assertEqual(custom_field.to_json(),
                          {'value': '12345678901234567890123456789012',
                           'id': '34536456',
-                          'links': {
-                              'custom_field': {
-                                  'id': '5',
-                                  'type': 'custom_fields'}}})
+                          'custom_field_id': '5'})

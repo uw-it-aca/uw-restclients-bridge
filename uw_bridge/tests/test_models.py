@@ -15,9 +15,8 @@ class TestBridgeModel(TestCase):
         self.assertEqual(bcf.to_json(),
                          {'id': '1',
                           'value': '787',
-                          'links': {'custom_field': {
-                              'id': '5',
-                              'type': 'custom_fields'}}})
+                          'custom_field_id': '5'})
+
         self.assertTrue(bcf.is_regid())
         self.assertEqual(bcf.value, '787')
         self.assertIsNotNone(str(bcf))
@@ -26,9 +25,7 @@ class TestBridgeModel(TestCase):
                                 name=BridgeCustomField.REGID_NAME,
                                 value="787")
         self.assertEqual(bcf.to_json(),
-                         {'links': {'custom_field': {
-                             'id': '5',
-                             'type': 'custom_fields'}},
+                         {'custom_field_id': '5',
                           'value': '787'})
         self.assertIsNotNone(str(bcf))
 
@@ -113,10 +110,10 @@ class TestBridgeModel(TestCase):
         self.assertEqual(
             user.custom_fields_json(),
             [{'value': '12345678901234567890123456789012',
-              'links': {'custom_field': {'id': '5', 'type': 'custom_fields'}},
+              'custom_field_id': '5',
               'id': '1'},
              {'value': '123456789',
-              'links': {'custom_field': {'id': '6', 'type': 'custom_fields'}},
+              'custom_field_id': '6',
               'id': '2'}])
 
         user.bridge_id = 123
@@ -134,16 +131,10 @@ class TestBridgeModel(TestCase):
                 'job_title': 'y',
                 'custom_field_values': [
                     {'value': '12345678901234567890123456789012',
-                     'links': {
-                         'custom_field': {
-                             'id': '5',
-                             'type': 'custom_fields'}},
+                     'custom_field_id': '5',
                      'id': '1'},
                     {'value': '123456789',
-                     'links': {
-                         'custom_field': {
-                             'id': '6',
-                             'type': 'custom_fields'}},
+                     'custom_field_id': '6',
                      'id': '2'}]}})
 
         user.manager_id = 1
@@ -162,16 +153,10 @@ class TestBridgeModel(TestCase):
                 'manager_id': 1,
                 'custom_field_values': [
                     {'value': '12345678901234567890123456789012',
-                     'links': {
-                         'custom_field': {
-                             'id': '5',
-                             'type': 'custom_fields'}},
+                     'custom_field_id': '5',
                      'id': '1'},
                     {'value': '123456789',
-                     'links': {
-                         'custom_field': {
-                             'id': '6',
-                             'type': 'custom_fields'}},
+                     'custom_field_id': '6',
                      'id': '2'}]}]})
 
     def test_bridge_user_role(self):

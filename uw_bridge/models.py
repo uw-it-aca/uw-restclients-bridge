@@ -47,10 +47,7 @@ class BridgeCustomField(models.Model):
 
     def to_json(self):
         value = {"value": self.value,
-                 "links": {
-                     "custom_field": {
-                         "id": self.field_id,
-                         "type": "custom_fields"}}}
+                 "custom_field_id": self.field_id}
         if self.value_id is not None:
             value["id"] = self.value_id
         return value
