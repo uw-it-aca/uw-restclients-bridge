@@ -188,12 +188,18 @@ class TestBridgeUser(TestCase):
 
     def test_get_user_with_deleted(self):
         user = TestBridgeUser.users.get_user_by_id(
-            17637, include_course_summary=True, include_deleted=True)
+            17637, include_deleted=False)
+        self.assertIsNone(user)
+
+        user = TestBridgeUser.users.get_user_by_id(
+            17637, include_deleted=True)
         self.verify_bill(user)
+        self.assertTrue(user.is_deleted())
+        self.assertTrue(user.has_manager())
+
         cus_field = user.get_custom_field(BridgeCustomField.REGID_NAME)
         self.assertEqual(cus_field.value,
                          "FBB38FE46A7C11D5A4AE0004AC494FFE")
-        self.assertTrue(user.is_deleted())
 
         self.assertRaises(DataFailureException,
                           TestBridgeUser.users.get_user, 'unknown')
