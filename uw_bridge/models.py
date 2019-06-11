@@ -52,13 +52,14 @@ class BridgeCustomField(models.Model):
             value["id"] = self.value_id
         return value
 
+    def to_json_short(self):
+        return {"name": self.name, "value": self.value}
+
     def __init__(self, *args, **kwargs):
         super(BridgeCustomField, self).__init__(*args, **kwargs)
 
     def __str__(self):
-        data = self.to_json()
-        data["name"] = self.name
-        return json.dumps(data)
+        return json.dumps(self.to_json_short())
 
 
 class BridgeUser(models.Model):
@@ -122,12 +123,6 @@ class BridgeUser(models.Model):
                     "email": self.email,
                     }
 
-        if len(self.custom_fields) > 0 or not omit_custom_fields:
-            custom_fields_json = []
-            for field in self.custom_fields.values():
-                custom_fields_json.append(field.to_json())
-            ret_user["custom_fields"] = custom_fields_json
-
         if self.has_bridge_id():
             ret_user["id"] = self.bridge_id
 
@@ -154,28 +149,43 @@ class BridgeUser(models.Model):
 
         return ret_user
 
+    def custom_fields_json(self):
+        custom_fields_json = []
+        if len(self.custom_fields) > 0:
+            for field in self.custom_fields.values():
+                custom_fields_json.append(field.to_json())
+        return custom_fields_json
+
     def to_json_post(self):
         # for POST (add new or restore a user)
-        return {"users": [self.to_json()]}
+        user_data = self.to_json()
+        user_data["custom_field_values"] = self.custom_fields_json()
+        return {"users": [user_data]}
 
     def to_json_patch(self):
         # for PATCH, PUT (update)
-        return {"user": self.to_json(omit_custom_fields=True)}
+        user_data = self.to_json()
+        user_data["custom_field_values"] = self.custom_fields_json()
+        return {"user": user_data}
 
-    def __str__(self, orig=True):
+    def __str__(self):
         json_data = self.to_json()
-        if orig:
-            json_data["deleted_at"] = self.deleted_at
-            json_data["logged_in_at"] = self.logged_in_at
-            json_data["updated_at"] = self.updated_at
-            json_data["completed_courses_count"] =\
-                self.completed_courses_count
+        json_data["deleted_at"] = self.deleted_at
+        json_data["logged_in_at"] = self.logged_in_at
+        json_data["updated_at"] = self.updated_at
+        json_data["completed_courses_count"] = self.completed_courses_count
 
-            if len(self.roles) > 0:
-                roles_json = []
-                for role in self.roles:
-                    roles_json.append(role.to_json())
-                json_data["roles"] = roles_json
+        if len(self.custom_fields):
+            custom_fields = []
+            for field in self.custom_fields.values():
+                custom_fields.append(field.to_json_short())
+            json_data["custom_fields"] = custom_fields
+
+        if len(self.roles) > 0:
+            roles_json = []
+            for role in self.roles:
+                roles_json.append(role.to_json())
+            json_data["roles"] = roles_json
 
         return json.dumps(json_data, default=str)
 

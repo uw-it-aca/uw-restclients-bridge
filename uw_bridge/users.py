@@ -64,10 +64,11 @@ class Users:
 
     def add_user(self, bridge_user):
         """
-        Add the bridge_user given
-        Return a BridgeUser objects with custom fields
+        Add the given bridge_user
+        :param bridge_user: the BridgeUser object to be created
+        Return the BridgeUser object created
         """
-        url = self.admin_uid_url(None, no_custom_fields=False)
+        url = self.admin_uid_url(None)
         body = json.dumps(bridge_user.to_json_post(), separators=(',', ':'))
         resp = post_resource(url, body)
         return self._get_obj_from_list(
@@ -81,8 +82,9 @@ class Users:
     def change_uid(self, bridge_id, new_uwnetid, no_custom_fields=True):
         """
         :param bridge_id: integer
-        :param no_custom_fields: return objects with or without custom_fields
-        Return a BridgeUser objects
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        Return a BridgeUser object
         """
         url = self.author_id_url(bridge_id, no_custom_fields=no_custom_fields)
         resp = patch_resource(url, self._upd_uid_req_body(new_uwnetid))
@@ -93,8 +95,10 @@ class Users:
 
     def replace_uid(self, old_uwnetid, new_uwnetid, no_custom_fields=True):
         """
-        :param no_custom_fields: return objects with or without custom_fields
-        Return a BridgeUser objects
+        :param old_uwnetid, new_uwnetid: UwNetID strings
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        Return a BridgeUser object
         """
         url = self.author_uid_url(old_uwnetid,
                                   no_custom_fields=no_custom_fields)
@@ -134,8 +138,11 @@ class Users:
                  include_course_summary=True,
                  include_manager=True):
         """
-        Return a BridgeUsers objects with custom fields,
-        only returns the active records associated with the uid.
+        :param include_course_summary: specify if you want course
+                                       data in the response.
+        :param include_manager: specify if you want manager data
+                                in the response.
+        Return a BridgeUser object
         """
         url = self._add_includes_to_url(
             self.author_uid_url(uwnetid, no_custom_fields=False),
@@ -151,8 +158,13 @@ class Users:
                        include_deleted=True):
         """
         :param bridge_id: integer
-        Return an BridgeUsers objects of active (and deleted)
-        records associated with the bridge_id with custom fields.
+        :param include_course_summary: specify if you want course
+                                       data in the response.
+        :param include_manager: specify if you want manager data
+                                in the response.
+        :param include_deleted: specify if you want to include
+                                terminated user record in the response.
+        Return a BridgeUser object
         """
         url = self._add_includes_to_url(
             self.author_id_url(bridge_id, no_custom_fields=False),
@@ -162,8 +174,7 @@ class Users:
         resp = get_resource(url)
         return self._get_obj_from_list(
             "get_user by bridge_id('{0}')".format(bridge_id),
-            self._process_json_resp_data(resp,
-                                         include_deleted=include_deleted))
+            self._process_json_resp_data(resp))
 
     def _get_all_users_url(self,
                            include_course_summary,
@@ -176,9 +187,12 @@ class Users:
                 url = "{0}&{1}".format(url, COURSE_SUMMARY)
         return "{0}&{1}".format(url, PAGE_MAX_ENTRY)
 
-    def get_all_users(self, include_course_summary=True,
-                      no_custom_fields=False):
+    def get_all_users(self,
+                      include_course_summary=False,
+                      no_custom_fields=True):
         """
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
         Return a list of BridgeUser objects of the active user records.
         """
         resp = get_resource(self._get_all_users_url(include_course_summary,
@@ -191,12 +205,16 @@ class Users:
             "{0}/{1}?{2}".format(base_url, RESTORE_SUFFIX, CUSTOM_FIELD),
             include_manager, False)
 
-    def restore_user(self, uwnetid,
+    def restore_user(self,
+                     uwnetid,
                      include_manager=True,
                      no_custom_fields=False):
         """
-        :param no_custom_fields: return objects with or without custom_fields
-        Return a BridgeUsers objects
+        :param include_manager: specify if you want manager data
+                                 in the response.
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        Return a BridgeUser object
         """
         url = self._restore_user_url(self.author_uid_url(uwnetid),
                                      include_manager)
@@ -206,13 +224,17 @@ class Users:
             self._process_json_resp_data(
                 resp, no_custom_fields=no_custom_fields))
 
-    def restore_user_by_id(self, bridge_id,
+    def restore_user_by_id(self,
+                           bridge_id,
                            include_manager=True,
                            no_custom_fields=False):
         """
         :param bridge_id: integer
-        :param no_custom_fields: return objects with or without custom_fields
-        Return a BridgeUsers objects
+        :param include_manager: specify if you want manager_id
+                                 in the response.
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        return a BridgeUser object
         """
         url = self._restore_user_url(self.author_id_url(bridge_id),
                                      include_manager)
@@ -222,25 +244,29 @@ class Users:
             self._process_json_resp_data(
                 resp, no_custom_fields=no_custom_fields))
 
-    def update_user(self, bridge_user):
+    def update_user(self,
+                    bridge_user,
+                    no_custom_fields=True):
         """
         Update only the user attributes provided.
-        Return a list of BridgeUsers objects with custom fields.
+        :param no_custom_fields: specify if you want custom_fields
+                                 in the response.
+        Return a BridgeUser object
         """
         if bridge_user.bridge_id:
             url = self.author_id_url(bridge_user.bridge_id,
-                                     no_custom_fields=False)
+                                     no_custom_fields=no_custom_fields)
         else:
             url = self.author_uid_url(bridge_user.netid,
-                                      no_custom_fields=False)
+                                      no_custom_fields=no_custom_fields)
         body = json.dumps(bridge_user.to_json_patch(), separators=(',', ':'))
         resp = patch_resource(url, body)
         return self._get_obj_from_list(
             "update_user ({0})".format(bridge_user.to_json()),
-            self._process_json_resp_data(resp))
+            self._process_json_resp_data(resp,
+                                         no_custom_fields=no_custom_fields))
 
     def _process_json_resp_data(self, resp,
-                                include_deleted=False,
                                 no_custom_fields=False):
         """
         process the response and return a list of BridgeUser
@@ -256,7 +282,6 @@ class Users:
             try:
                 bridge_users = self._process_apage(resp_data,
                                                    bridge_users,
-                                                   include_deleted,
                                                    no_custom_fields)
             except Exception as err:
                 logger.error("{0} in {1}".format(str(err), resp_data))
@@ -269,18 +294,12 @@ class Users:
     def _process_apage(self,
                        resp_data,
                        bridge_users,
-                       include_deleted,
                        no_custom_fields):
         custom_fields_value_dict = self._get_custom_fields_dict(
             resp_data["linked"], no_custom_fields)
         # a dict of {custom_field_value_id: BridgeCustomField}
 
         for user_data in resp_data["users"]:
-            if (include_deleted is False and
-                    user_data.get("deleted_at") is not None):
-                # skip deleted entry
-                continue
-
             user = BridgeUser(
                 bridge_id=int(user_data["id"]),
                 netid=re.sub('@uw.edu', '', user_data["uid"]),
@@ -292,24 +311,16 @@ class Users:
                 job_title=user_data.get("job_title", None),
                 locale=user_data.get("locale", "en"),
                 is_manager=user_data.get("is_manager", None),
-                deleted_at=None,
-                logged_in_at=None,
-                updated_at=None,
-                unsubscribed=user_data.get("unsubscribed", None),
-                next_due_date=None,
+                deleted_at=parse_date(user_data.get("deleted_at")),
+                logged_in_at=parse_date(user_data.get("loggedInAt")),
+                updated_at=parse_date(user_data.get("updated_at")),
+                unsubscribed=parse_date(user_data.get("unsubscribed", None)),
+                next_due_date=parse_date(user_data.get("next_due_date")),
                 completed_courses_count=user_data.get(
                     "completed_courses_count", -1))
 
             if user_data.get("manager_id") is not None:
                 user.manager_id = int(user_data["manager_id"])
-            if user_data.get("deleted_at") is not None:
-                user.deleted_at = parse(user_data["deleted_at"])
-            if user_data.get("loggedInAt") is not None:
-                user.logged_in_at = parse(user_data["loggedInAt"])
-            if user_data.get("updated_at") is not None:
-                user.updated_at = parse(user_data["updated_at"])
-            if user_data.get("next_due_date") is not None:
-                user.next_due_date = parse(user_data["next_due_date"])
 
             if (no_custom_fields is False and
                     "links" in user_data and len(user_data["links"]) > 0 and
@@ -349,8 +360,8 @@ class Users:
 
         for value in linked_data["custom_field_values"]:
             custom_field = BridgeCustomField(
-                value_id=value["id"],
-                value=value["value"],
+                value_id=value.get("id"),
+                value=value.get("value"),
                 field_id=value["links"]["custom_field"]["id"])
             custom_field.name = custom_fields_name_dict[custom_field.field_id]
             custom_fields_value_dict[custom_field.value_id] = custom_field
@@ -368,3 +379,9 @@ class Users:
                 "{0} returns multiple Bridge user accounts: {1}".format(
                     action, data))
         return rlist[0]
+
+
+def parse_date(date_str):
+    if date_str is not None:
+        return parse(date_str)
+    return None
