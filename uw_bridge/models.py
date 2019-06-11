@@ -46,8 +46,8 @@ class BridgeCustomField(models.Model):
         return self.name == BridgeCustomField.POS1_ORG_NAME
 
     def to_json(self):
-        value = {"value": self.value,
-                 "custom_field_id": self.field_id}
+        value = {"custom_field_id": self.field_id,
+                 "value": self.value}
         if self.value_id is not None:
             value["id"] = self.value_id
         return value

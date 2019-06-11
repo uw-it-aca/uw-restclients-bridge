@@ -65,40 +65,35 @@ class Users:
     def add_user(self, bridge_user):
         """
         Add the given bridge_user
-        :param bridge_user: BridgeUser object
-        Return a BridgeUser object returned
+        :param bridge_user: the BridgeUser object to be created
+        Return the BridgeUser object created
         """
         url = self.admin_uid_url(None)
-        body = json.dumps(bridge_user.to_json_post(),
-                          separators=(',', ':'))
+        body = json.dumps(bridge_user.to_json_post(), separators=(',', ':'))
         resp = post_resource(url, body)
         return self._get_obj_from_list(
             "add_user ({0})".format(bridge_user),
-            self._process_json_resp_data(resp,
-                                         no_custom_fields=True))
+            self._process_json_resp_data(resp, no_custom_fields=True))
 
     def _upd_uid_req_body(self, new_uwnetid):
         return "{0}{1}@uw.edu{2}".format(
             '{"user":{"uid":"', new_uwnetid, '"}}')
 
-    def change_uid(self, bridge_id, new_uwnetid,
-                   no_custom_fields=True):
+    def change_uid(self, bridge_id, new_uwnetid, no_custom_fields=True):
         """
         :param bridge_id: integer
         :param no_custom_fields: specify if you want custom_fields
                                  in the response.
         Return a BridgeUser object
         """
-        url = self.author_id_url(bridge_id,
-                                 no_custom_fields=no_custom_fields)
+        url = self.author_id_url(bridge_id, no_custom_fields=no_custom_fields)
         resp = patch_resource(url, self._upd_uid_req_body(new_uwnetid))
         return self._get_obj_from_list(
             "change_uid({0})".format(new_uwnetid),
             self._process_json_resp_data(resp,
                                          no_custom_fields=no_custom_fields))
 
-    def replace_uid(self, old_uwnetid, new_uwnetid,
-                    no_custom_fields=True):
+    def replace_uid(self, old_uwnetid, new_uwnetid, no_custom_fields=True):
         """
         :param old_uwnetid, new_uwnetid: UwNetID strings
         :param no_custom_fields: specify if you want custom_fields
@@ -205,9 +200,7 @@ class Users:
         return self._process_json_resp_data(
             resp, no_custom_fields=no_custom_fields)
 
-    def _restore_user_url(self,
-                          base_url,
-                          include_manager):
+    def _restore_user_url(self, base_url, include_manager):
         return self._add_includes_to_url(
             "{0}/{1}?{2}".format(base_url, RESTORE_SUFFIX, CUSTOM_FIELD),
             include_manager, False)
@@ -367,9 +360,9 @@ class Users:
 
         for value in linked_data["custom_field_values"]:
             custom_field = BridgeCustomField(
-                field_id=value["links"]["custom_field"]["id"],
-                value_id=value["id"],
-                value=value["value"])
+                value_id=value.get("id"),
+                value=value.get("value"),
+                field_id=value["links"]["custom_field"]["id"])
             custom_field.name = custom_fields_name_dict[custom_field.field_id]
             custom_fields_value_dict[custom_field.value_id] = custom_field
         return custom_fields_value_dict
