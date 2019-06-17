@@ -71,13 +71,13 @@ class TestBridgeModel(TestCase):
         self.assertFalse(user.has_manager())
         self.assertEqual(
             user.to_json(),
-            {
-             'email': 'iamstudent@uw.edu',
+            {'email': 'iamstudent@uw.edu',
              'first_name': 'Iam A',
              'full_name': 'Iam Student',
              'last_name': 'Student',
              'department': "XYZ",
              'job_title': "y",
+             'manager_id': None,
              'sortable_name': 'Student, Iam A',
              'uid': 'iamstudent@uw.edu'})
 
@@ -106,7 +106,6 @@ class TestBridgeModel(TestCase):
             "12345678901234567890123456789012")
 
         self.assertIsNotNone(str(user))
-
         self.assertEqual(
             user.custom_fields_json(),
             [{'value': '12345678901234567890123456789012',
@@ -128,6 +127,7 @@ class TestBridgeModel(TestCase):
                 'full_name': 'Iam Student',
                 'sortable_name': 'Student, Iam A',
                 'department': 'XYZ',
+                'manager_id': None,
                 'job_title': 'y',
                 'custom_field_values': [
                     {'value': '12345678901234567890123456789012',
@@ -158,6 +158,10 @@ class TestBridgeModel(TestCase):
                     {'value': '123456789',
                      'custom_field_id': '6',
                      'id': '2'}]}]})
+
+        user.update_custom_field(BridgeCustomField.REGID_NAME, None)
+        self.assertIsNone(
+            user.get_custom_field(BridgeCustomField.REGID_NAME).value)
 
     def test_bridge_user_role(self):
         role1 = BridgeUserRole(role_id='9a0d0b25', name='Campus Admin')
