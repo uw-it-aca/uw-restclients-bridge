@@ -57,6 +57,10 @@ class TestBridgeModel(TestCase):
         self.assertFalse(user.no_learning_history())
         self.assertFalse(user.has_custom_field())
 
+        user.update_custom_field(BridgeCustomField.REGID_NAME, "1")
+        self.assertIsNone(user.get_custom_field(BridgeCustomField.REGID_NAME))
+
+
         user.updated_at = parse("2016-08-08T13:58:20.635-07:00")
         self.assertIsNotNone(str(user))
 
