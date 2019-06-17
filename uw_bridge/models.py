@@ -114,6 +114,12 @@ class BridgeUser(models.Model):
         # return the corresponding BridgeCustomField object
         return self.custom_fields.get(field_name)
 
+    def update_custom_field(self, field_name, new_value):
+        # update an existing custom field
+        cf = self.get_custom_field(field_name)
+        if cf is not None:
+            cf.value = new_value
+
     def has_custom_field(self):
         return len(self.custom_fields.keys()) > 0
 
@@ -146,6 +152,8 @@ class BridgeUser(models.Model):
         elif self.manager_netid is not None:
             ret_user["manager_id"] = "uid:{0}@uw.edu".format(
                 self.manager_netid)
+        else:
+            ret_user["manager_id"] = None
 
         return ret_user
 
