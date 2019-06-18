@@ -9,16 +9,7 @@ class TestBridgeCustomFields(TestCase):
 
     def test_customfields(self):
         cfs = CustomFields()
-        self.assertEqual(len(cfs.get_fields()), 8)
-
-        self.assertTrue(cfs.get_fields()[0].is_regid())
-        self.assertTrue(cfs.get_fields()[1].is_employee_id())
-        self.assertTrue(cfs.get_fields()[2].is_student_id())
-        self.assertTrue(cfs.get_fields()[3].is_pos1_budget_code())
-        self.assertTrue(cfs.get_fields()[4].is_pos1_job_code())
-        self.assertTrue(cfs.get_fields()[5].is_pos1_job_clas())
-        self.assertTrue(cfs.get_fields()[6].is_pos1_org_code())
-        self.assertTrue(cfs.get_fields()[7].is_pos1_org_name())
+        self.assertEqual(len(cfs.get_fields()), 15)
 
         self.assertEqual(cfs.get_field_id(
             BridgeCustomField.REGID_NAME), "5")
@@ -36,11 +27,24 @@ class TestBridgeCustomFields(TestCase):
             BridgeCustomField.POS1_ORG_CODE), "14")
         self.assertEqual(cfs.get_field_id(
             BridgeCustomField.POS1_ORG_NAME), "15")
+        self.assertEqual(cfs.get_field_id(
+            BridgeCustomField.POS1_UNIT_CODE), "16")
+        self.assertEqual(cfs.get_field_id(
+            BridgeCustomField.POS2_BUDGET_CODE), "21")
+        self.assertEqual(cfs.get_field_id(
+            BridgeCustomField.POS2_JOB_CODE), "22")
+        self.assertEqual(cfs.get_field_id(
+            BridgeCustomField.POS2_JOB_CLAS), "23")
+        self.assertEqual(cfs.get_field_id(
+            BridgeCustomField.POS2_ORG_CODE), "24")
+        self.assertEqual(cfs.get_field_id(
+            BridgeCustomField.POS2_ORG_NAME), "25")
+        self.assertEqual(cfs.get_field_id(
+            BridgeCustomField.POS2_UNIT_CODE), "26")
 
         custom_field = cfs.new_custom_field(
             BridgeCustomField.REGID_NAME,
             '12345678901234567890123456789012')
-        self.assertTrue(custom_field.is_regid())
         self.assertEqual(custom_field.to_json_short(),
                          {'value': '12345678901234567890123456789012',
                           'name': 'regid'})

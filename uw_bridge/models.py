@@ -8,42 +8,29 @@ class BridgeCustomField(models.Model):
     REGID_NAME = "regid"
     EMPLOYEE_ID_NAME = "employee_id"
     STUDENT_ID_NAME = "student_id"
+
     POS1_BUDGET_CODE = "pos1_budget_code"
     POS1_JOB_CODE = "pos1_job_code"
     POS1_JOB_CLAS = "pos1_job_class"    # job classification
     POS1_ORG_CODE = "pos1_org_code"
     POS1_ORG_NAME = "pos1_org_name"
+    POS1_UNIT_CODE = "pos1_unit_code"
     POS1 = [POS1_BUDGET_CODE, POS1_JOB_CODE, POS1_JOB_CLAS,
-            POS1_ORG_CODE, POS1_ORG_NAME]
+            POS1_ORG_CODE, POS1_ORG_NAME, POS1_UNIT_CODE]
+
+    POS2_BUDGET_CODE = "pos2_budget_code"
+    POS2_JOB_CODE = "pos2_job_code"
+    POS2_JOB_CLAS = "pos2_job_class"
+    POS2_ORG_CODE = "pos2_org_code"
+    POS2_ORG_NAME = "pos2_org_name"
+    POS2_UNIT_CODE = "pos2_unit_code"
+    POS2 = [POS2_BUDGET_CODE, POS2_JOB_CODE, POS2_JOB_CLAS,
+            POS2_ORG_CODE, POS2_ORG_NAME, POS2_UNIT_CODE]
 
     field_id = models.CharField(max_length=10)
     name = models.CharField(max_length=64)
     value_id = models.CharField(max_length=10, null=True, default=None)
     value = models.CharField(max_length=256, null=True, default=None)
-
-    def is_regid(self):
-        return self.name == BridgeCustomField.REGID_NAME
-
-    def is_employee_id(self):
-        return self.name == BridgeCustomField.EMPLOYEE_ID_NAME
-
-    def is_student_id(self):
-        return self.name == BridgeCustomField.STUDENT_ID_NAME
-
-    def is_pos1_budget_code(self):
-        return self.name == BridgeCustomField.POS1_BUDGET_CODE
-
-    def is_pos1_job_code(self):
-        return self.name == BridgeCustomField.POS1_JOB_CODE
-
-    def is_pos1_job_clas(self):
-        return self.name == BridgeCustomField.POS1_JOB_CLAS
-
-    def is_pos1_org_code(self):
-        return self.name == BridgeCustomField.POS1_ORG_CODE
-
-    def is_pos1_org_name(self):
-        return self.name == BridgeCustomField.POS1_ORG_NAME
 
     def to_json(self):
         value = {"custom_field_id": self.field_id,
