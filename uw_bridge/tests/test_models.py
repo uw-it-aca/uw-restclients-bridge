@@ -7,7 +7,8 @@ from uw_bridge.models import BridgeUser, BridgeCustomField, BridgeUserRole
 class TestBridgeModel(TestCase):
 
     def test_bridge_custom_field(self):
-        self.assertEqual(len(BridgeCustomField.POS1), 5)
+        self.assertEqual(len(BridgeCustomField.POS1), 6)
+        self.assertEqual(len(BridgeCustomField.POS2), 6)
         bcf = BridgeCustomField(value_id="1",
                                 field_id="5",
                                 name=BridgeCustomField.REGID_NAME,
@@ -16,14 +17,9 @@ class TestBridgeModel(TestCase):
                          {'id': '1',
                           'value': '787',
                           'custom_field_id': '5'})
-
-        self.assertTrue(bcf.is_regid())
-        self.assertEqual(bcf.value, '787')
         self.assertIsNotNone(str(bcf))
 
-        bcf = BridgeCustomField(field_id="5",
-                                name=BridgeCustomField.REGID_NAME,
-                                value="787")
+        bcf.value_id = None
         self.assertEqual(bcf.to_json(),
                          {'custom_field_id': '5',
                           'value': '787'})
