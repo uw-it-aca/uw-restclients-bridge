@@ -9,7 +9,7 @@ class TestBridgeCustomFields(TestCase):
 
     def test_customfields(self):
         cfs = CustomFields()
-        self.assertEqual(len(cfs.get_fields()), 15)
+        self.assertEqual(len(cfs.get_fields()), 17)
 
         self.assertEqual(cfs.get_field_id(
             BridgeCustomField.REGID_NAME), "5")
@@ -30,6 +30,8 @@ class TestBridgeCustomFields(TestCase):
         self.assertEqual(cfs.get_field_id(
             BridgeCustomField.POS1_UNIT_CODE), "16")
         self.assertEqual(cfs.get_field_id(
+            BridgeCustomField.POS1_LOCATION), "17")
+        self.assertEqual(cfs.get_field_id(
             BridgeCustomField.POS2_BUDGET_CODE), "21")
         self.assertEqual(cfs.get_field_id(
             BridgeCustomField.POS2_JOB_CODE), "22")
@@ -41,6 +43,8 @@ class TestBridgeCustomFields(TestCase):
             BridgeCustomField.POS2_ORG_NAME), "25")
         self.assertEqual(cfs.get_field_id(
             BridgeCustomField.POS2_UNIT_CODE), "26")
+        self.assertEqual(cfs.get_field_id(
+            BridgeCustomField.POS2_LOCATION), "27")
 
         custom_field = cfs.new_custom_field(
             BridgeCustomField.REGID_NAME,

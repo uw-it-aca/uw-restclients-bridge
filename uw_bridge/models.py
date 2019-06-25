@@ -12,19 +12,21 @@ class BridgeCustomField(models.Model):
     POS1_BUDGET_CODE = "pos1_budget_code"
     POS1_JOB_CODE = "pos1_job_code"
     POS1_JOB_CLAS = "pos1_job_class"    # job classification
+    POS1_LOCATION = "pos1_location"
     POS1_ORG_CODE = "pos1_org_code"
     POS1_ORG_NAME = "pos1_org_name"
     POS1_UNIT_CODE = "pos1_unit_code"
-    POS1 = [POS1_BUDGET_CODE, POS1_JOB_CODE, POS1_JOB_CLAS,
+    POS1 = [POS1_BUDGET_CODE, POS1_JOB_CODE, POS1_JOB_CLAS, POS1_LOCATION,
             POS1_ORG_CODE, POS1_ORG_NAME, POS1_UNIT_CODE]
 
     POS2_BUDGET_CODE = "pos2_budget_code"
     POS2_JOB_CODE = "pos2_job_code"
     POS2_JOB_CLAS = "pos2_job_class"
+    POS2_LOCATION = "pos2_location"
     POS2_ORG_CODE = "pos2_org_code"
     POS2_ORG_NAME = "pos2_org_name"
     POS2_UNIT_CODE = "pos2_unit_code"
-    POS2 = [POS2_BUDGET_CODE, POS2_JOB_CODE, POS2_JOB_CLAS,
+    POS2 = [POS2_BUDGET_CODE, POS2_JOB_CODE, POS2_JOB_CLAS, POS2_LOCATION,
             POS2_ORG_CODE, POS2_ORG_NAME, POS2_UNIT_CODE]
 
     field_id = models.CharField(max_length=10)
