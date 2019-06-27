@@ -7,8 +7,6 @@ from uw_bridge.models import BridgeUser, BridgeCustomField, BridgeUserRole
 class TestBridgeModel(TestCase):
 
     def test_bridge_custom_field(self):
-        self.assertEqual(len(BridgeCustomField.POS1), 7)
-        self.assertEqual(len(BridgeCustomField.POS2), 7)
         bcf = BridgeCustomField(value_id="1",
                                 field_id="5",
                                 name=BridgeCustomField.REGID_NAME,
