@@ -59,3 +59,10 @@ class TestBridgeCustomFields(TestCase):
                          {'value': '12345678901234567890123456789012',
                           'id': '34536456',
                           'custom_field_id': '5'})
+
+        custom_field = cfs.get_custom_field('5',
+                                            '34536456',
+                                            '12345678901234567890123456789012')
+        self.assertEqual(custom_field.to_json_short(),
+                         {'name': 'regid',
+                          'value': '12345678901234567890123456789012'})

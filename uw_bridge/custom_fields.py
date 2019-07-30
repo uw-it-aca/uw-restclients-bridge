@@ -18,19 +18,19 @@ class CustomFields:
     def __init__(self):
         self.fields = []
         self.name_id_map = {}
+        self.id_name_map = {}
         self.get_custom_fields()
 
     def get_custom_fields(self):
         resp = get_resource(URL)
         resp_data = json.loads(resp)
-        if resp_data.get("custom_fields") is not None:
-            for field in resp_data["custom_fields"]:
-                if (field.get("id") is not None and
-                        field.get("name") is not None):
-                    cf = BridgeCustomField(field_id=field["id"],
-                                           name=field["name"].lower())
-                    self.fields.append(cf)
-                    self.name_id_map[cf.name] = cf.field_id
+        for field in resp_data["custom_fields"]:
+            if field.get("id") is not None and field.get("name") is not None:
+                cf = BridgeCustomField(field_id=field["id"],
+                                       name=field["name"].lower())
+                self.fields.append(cf)
+                self.name_id_map[cf.name] = cf.field_id
+                self.id_name_map[cf.field_id] = cf.name
 
     def get_fields(self):
         """
@@ -40,6 +40,9 @@ class CustomFields:
 
     def get_field_id(self, field_name):
         return self.name_id_map.get(field_name)
+
+    def get_field_name(self, field_id):
+        return self.id_name_map.get(field_id)
 
     def new_custom_field(self,
                          field_name,
@@ -52,3 +55,15 @@ class CustomFields:
         return BridgeCustomField(field_id=self.get_field_id(field_name),
                                  name=field_name,
                                  value=field_value)
+
+    def get_custom_field(self,
+                         field_id,
+                         value_id,
+                         value):
+        """
+        Return a new BridgeCustomField object
+        """
+        return BridgeCustomField(field_id=field_id,
+                                 name=self.get_field_name(field_id),
+                                 value_id=value_id,
+                                 value=value)

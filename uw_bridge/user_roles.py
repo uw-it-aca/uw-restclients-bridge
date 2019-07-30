@@ -69,3 +69,9 @@ class UserRoles:
         :param name: use role name defined in models.BridgeUserRole
         """
         return BridgeUserRole(role_id=self.get_role_id(name), name=name)
+
+    def new_author_role(self):
+        return self.new_user_role_by_name(BridgeUserRole.AUTHOR_NAME)
+
+    def new_campus_admin_role(self):
+        return self.new_user_role_by_name(BridgeUserRole.CAMPUS_ADMIN_NAME)

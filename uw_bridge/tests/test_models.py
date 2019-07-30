@@ -161,22 +161,47 @@ class TestBridgeModel(TestCase):
             user.get_custom_field(BridgeCustomField.REGID_NAME).value)
 
     def test_bridge_user_role(self):
+        user = BridgeUser(netid="iamstudent",
+                          email="iamstudent@uw.edu",
+                          full_name="Iam Student")
+
         role1 = BridgeUserRole(role_id='9a0d0b25', name='Campus Admin')
         self.assertEqual(role1.to_json(),
                          {'id': '9a0d0b25', 'name': 'Campus Admin'})
         self.assertTrue(role1.is_campus_admin())
+        user.add_role(role1)
+        self.assertEqual(len(user.roles), 1)
+        user.add_role(role1)
+        self.assertEqual(len(user.roles), 1)
 
         role = BridgeUserRole(role_id='author', name='Author')
         self.assertEqual(role.to_json(),
                          {'id': 'author', 'name': 'Author'})
         self.assertTrue(role.is_author())
         self.assertIsNotNone(str(role))
+        user.add_role(role)
 
         role = BridgeUserRole(role_id="account_admin", name="Account Admin")
         self.assertTrue(role.is_account_admin())
+        user.add_role(role)
 
         role = BridgeUserRole(role_id="it_admin", name="IT Admin")
         self.assertTrue(role.is_it_admin())
+        user.add_role(role)
 
         role = BridgeUserRole(role_id="admin", name="Admin")
         self.assertTrue(role.is_admin())
+        user.add_role(role)
+
+        self.assertFalse(role1 == role)
+
+        self.assertIsNotNone(str(user))
+        self.assertEqual(
+            user.roles_to_json(),
+            ['9a0d0b25', 'author', 'account_admin', 'it_admin', 'admin'])
+        user.delete_role(role1)
+        self.assertEqual(
+            user.roles_to_json(),
+            ['author', 'account_admin', 'it_admin', 'admin'])
+        user.delete_role(role1)
+        self.assertEqual(len(user.roles), 4)

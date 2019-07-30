@@ -12,7 +12,7 @@
        "email":"bill@u.washington.edu",
        "is_manager":true,
        "locale":"en",
-       "roles":[],
+       "roles":["author", "fb412e52"],
        "name":"Bill Average Teacher",
        "avatar_url":null,
        "updated_at":"2016-09-08T13:58:20.635-07:00",

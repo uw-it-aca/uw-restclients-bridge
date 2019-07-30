@@ -76,7 +76,14 @@ def put_resource(url, body):
     Update the entire resource
     Bridge PUT seems to have the same effect as PATCH currently.
     """
-    pass
+    response = Bridge_DAO().putURL(url, PHEADER, body)
+    req_data = "PUT {0}: {1}".format(url, body)
+    _log_resp(req_data, response)
+
+    if response.status != 200:
+        _raise_exception(req_data, url, response)
+
+    return response.data
 
 
 def _log_resp(req_data, response):
