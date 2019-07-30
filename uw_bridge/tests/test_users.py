@@ -59,8 +59,7 @@ class TestBridgeUser(TestCase):
     def test_restore_user_url(self):
         self.assertEqual(
             restore_user_url(""),
-            "/restore?includes%5B%5D=custom_fields&includes%5B%5D=" +
-            "course_summary&includes%5B%5D=manager")
+            "/restore?includes%5B%5D=custom_fields&includes%5B%5D=manager")
 
     def test_get_obj_from_list(self):
         users = []
