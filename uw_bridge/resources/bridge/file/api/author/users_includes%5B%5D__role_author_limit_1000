@@ -1,6 +1,5 @@
 {
-  "meta":{
-     "next":"/api/author/users?after=xxx&includes%5B%5D=custom_fields"},
+  "meta":{},
    "linked":{
        "custom_fields": [
        {
@@ -18,43 +17,10 @@
             "type": "custom_fields"
           }
         }
-      },
-      {
-        "id": "3",
-        "value": "12345678901234567890123456789012",
-        "links": {
-          "custom_field": {
-            "id": "5",
-            "type": "custom_fields"
-          }
-        }
       }
     ]
    },
    "users":[
-       {"id":"106",
-       "uid":"eight@uw.edu",
-       "hris_id":null,
-       "first_name":"Eight Class",
-       "last_name":"Student",
-       "full_name":"Eight Class Student",
-       "sortable_name":"Student, Eight Class",
-       "email":"eight@uw.edu",
-       "is_manager":false,
-       "locale":"en",
-       "roles":[],
-       "name":"Eight Class Student",
-       "avatar_url":null,
-       "updated_at":"2016-08-02T14:36:17.082-07:00",
-       "deleted_at":null,
-       "unsubscribed":null,
-       "welcomedAt":null,
-       "loggedInAt":null,
-       "links":{
-         "custom_field_values":["3"]
-       },
-       "meta":{"can_masquerade":true}
-       },
        {"id":"195",
        "uid":"javerage@uw.edu",
        "hris_id":null,
