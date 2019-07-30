@@ -397,3 +397,16 @@ class TestBridgeUser(TestCase):
     def verify_uid(self, user):
         self.assertEqual(user.bridge_id, 17637)
         self.assertEqual(user.get_uid(), "bill@uw.edu")
+
+    def test_update_user_roles(self):
+        buser = TestBridgeUser.users.get_user_by_id(17637)
+        author_role = TestBridgeUser.users.user_roles.new_author_role()
+        buser.add_role(author_role)
+        admin_role = TestBridgeUser.users.user_roles.new_campus_admin_role()
+        buser.add_role(admin_role)
+        upded_user = TestBridgeUser.users.update_user_roles(buser)
+        self.verify_bill(upded_user)
+        self.assertTrue(author_role in upded_user.roles)
+        self.assertTrue(admin_role in upded_user.roles)
+        buser.delete_role(author_role)
+        self.assertFalse(author_role in buser.roles)

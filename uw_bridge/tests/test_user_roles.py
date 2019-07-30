@@ -45,8 +45,11 @@ class TestBridgeUserRoles(TestCase):
                          {'id': 'account_admin', 'name': 'Account Admin'})
         self.assertIsNotNone(str(role))
 
-        role = cfs.new_user_role_by_name(BridgeUserRole.CAMPUS_ADMIN_NAME)
+        role = cfs.new_campus_admin_role()
         self.assertEqual(role.role_id, "fb412e52")
+
+        role = cfs.new_author_role()
+        self.assertEqual(role.name, BridgeUserRole.AUTHOR_NAME)
 
         role = cfs.new_user_role_by_id("author")
         self.assertEqual(role.name, BridgeUserRole.AUTHOR_NAME)

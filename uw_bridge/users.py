@@ -3,17 +3,16 @@ Interacte with Bridge Users API.
 You only need a single Users object in your app.
 """
 
-from datetime import datetime
 import json
 import logging
 import re
-from dateutil.parser import parse
 from restclients_core.exceptions import InvalidNetID
 from uw_bridge.models import BridgeUser, BridgeCustomField, BridgeUserRole
 from uw_bridge.custom_fields import CustomFields
 from uw_bridge.user_roles import UserRoles
+from uw_bridge.util import parse_date
 from uw_bridge import (
-    get_resource, patch_resource, post_resource, delete_resource)
+    delete_resource, get_resource, patch_resource, post_resource, put_resource)
 
 
 logger = logging.getLogger(__name__)
@@ -266,6 +265,24 @@ class Users:
             self._process_json_resp_data(resp,
                                          no_custom_fields=no_custom_fields))
 
+    def update_user_roles(self,
+                          bridge_user):
+        """
+        Update the all the permission roles for the bridge_user.
+        Return a BridgeUser object
+        """
+        if bridge_user.bridge_id:
+            url = self.author_id_url(bridge_user.bridge_id)
+        else:
+            url = self.author_uid_url(bridge_user.netid)
+        url = "{0}/roles/batch".format(url)
+
+        body = json.dumps({"roles": bridge_user.roles_to_json()})
+        resp = put_resource(url, body)
+        return self._get_obj_from_list(
+            "update_user_roles {0}, {1}".format(bridge_user.netid, body),
+            self._process_json_resp_data(resp, no_custom_fields=True))
+
     def _process_json_resp_data(self, resp,
                                 no_custom_fields=False):
         """
@@ -379,9 +396,3 @@ class Users:
                 "{0} returns multiple Bridge user accounts: {1}".format(
                     action, data))
         return rlist[0]
-
-
-def parse_date(date_str):
-    if date_str is not None:
-        return parse(date_str)
-    return None
