@@ -415,3 +415,7 @@ class TestBridgeUser(TestCase):
         upded_user = TestBridgeUser.users.update_user_roles(buser)
         self.assertTrue(author_role in upded_user.roles)
         self.assertTrue(admin_role in upded_user.roles)
+
+        buser.bridge_id = 1
+        self.assertRaises(DataFailureException,
+                          TestBridgeUser.users.update_user_roles, buser)
