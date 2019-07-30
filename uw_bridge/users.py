@@ -18,7 +18,8 @@ from uw_bridge import (
 logger = logging.getLogger(__name__)
 ADMIN_URL_PREFIX = "/api/admin/users"
 AUTHOR_URL_PREFIX = "/api/author/users"
-INCLUDES = ['custom_fields', 'course_summary', 'manager']
+GET_USER_INCLUDES = ['custom_fields', 'course_summary', 'manager']
+RESTORE_INCLUDES = ['custom_fields', 'manager']
 PAGE_MAX_ENTRY = 1000
 RESTORE_SUFFIX = "restore"
 
@@ -69,7 +70,7 @@ def get_all_users_url(includes, role_id):
 
 def restore_user_url(base_url):
     return "{0}/{1}?{2}".format(base_url, RESTORE_SUFFIX,
-                                includes_to_query_params(INCLUDES))
+                                includes_to_query_params(RESTORE_INCLUDES))
 
 
 class Users:
@@ -141,7 +142,7 @@ class Users:
         Return a BridgeUser object
         """
         url = "{0}?{1}".format(author_uid_url(uwnetid),
-                               includes_to_query_params(INCLUDES))
+                               includes_to_query_params(GET_USER_INCLUDES))
         resp = get_resource(url)
         return self._get_obj_from_list(
             "get_user by netid('{0}')".format(uwnetid),
@@ -156,7 +157,7 @@ class Users:
         Return a BridgeUser object
         """
         url = "{0}?{1}".format(author_id_url(bridge_id),
-                               includes_to_query_params(INCLUDES))
+                               includes_to_query_params(GET_USER_INCLUDES))
         if include_deleted:
             url = "{0}&{1}".format(url, "with_deleted=true")
 
