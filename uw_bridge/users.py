@@ -67,11 +67,9 @@ def get_all_users_url(includes, role_id):
     return "{0}&limit={1}".format(url, PAGE_MAX_ENTRY)
 
 
-def restore_user_url(base_url, includes):
-    if includes is None:
-        return "{0}/{1}".format(base_url, RESTORE_SUFFIX)
+def restore_user_url(base_url):
     return "{0}/{1}?{2}".format(base_url, RESTORE_SUFFIX,
-                                includes_to_query_params(includes))
+                                includes_to_query_params(INCLUDES))
 
 
 class Users:
@@ -183,7 +181,7 @@ class Users:
          Valid value is: ['custom_fields', 'course_summary', 'manager']
         Return a BridgeUser object
         """
-        url = restore_user_url(author_uid_url(uwnetid), INCLUDES)
+        url = restore_user_url(author_uid_url(uwnetid))
         resp = post_resource(url, '{}')
         return self._get_obj_from_list(
             "restore_user by netid({0})".format(uwnetid),
@@ -196,7 +194,7 @@ class Users:
          Valid value is: ['custom_fields', 'course_summary', 'manager']
         return a BridgeUser object
         """
-        url = restore_user_url(author_id_url(bridge_id), INCLUDES)
+        url = restore_user_url(author_id_url(bridge_id))
         resp = post_resource(url, '{}')
         return self._get_obj_from_list(
             "restore_user by bridge_id({0})".format(bridge_id),

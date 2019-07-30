@@ -58,7 +58,7 @@ class TestBridgeUser(TestCase):
 
     def test_restore_user_url(self):
         self.assertEqual(
-            restore_user_url("", TestBridgeUser.includes),
+            restore_user_url(""),
             "/restore?includes%5B%5D=custom_fields&includes%5B%5D=" +
             "course_summary&includes%5B%5D=manager")
 
