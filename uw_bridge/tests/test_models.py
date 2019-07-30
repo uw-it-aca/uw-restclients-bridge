@@ -170,6 +170,9 @@ class TestBridgeModel(TestCase):
                          {'id': '9a0d0b25', 'name': 'Campus Admin'})
         self.assertTrue(role1.is_campus_admin())
         user.add_role(role1)
+        self.assertEqual(len(user.roles), 1)
+        user.add_role(role1)
+        self.assertEqual(len(user.roles), 1)
 
         role = BridgeUserRole(role_id='author', name='Author')
         self.assertEqual(role.to_json(),
@@ -191,6 +194,7 @@ class TestBridgeModel(TestCase):
         user.add_role(role)
 
         self.assertFalse(role1 == role)
+
         self.assertIsNotNone(str(user))
         self.assertEqual(
             user.roles_to_json(),
@@ -199,3 +203,5 @@ class TestBridgeModel(TestCase):
         self.assertEqual(
             user.roles_to_json(),
             ['author', 'account_admin', 'it_admin', 'admin'])
+        user.delete_role(role1)
+        self.assertEqual(len(user.roles), 4)

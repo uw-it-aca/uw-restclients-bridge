@@ -410,3 +410,8 @@ class TestBridgeUser(TestCase):
         self.assertTrue(admin_role in upded_user.roles)
         buser.delete_role(author_role)
         self.assertFalse(author_role in buser.roles)
+
+        buser.bridge_id = 0
+        upded_user = TestBridgeUser.users.update_user_roles(buser)
+        self.assertTrue(author_role in upded_user.roles)
+        self.assertTrue(admin_role in upded_user.roles)
