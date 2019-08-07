@@ -107,10 +107,10 @@ class TestBridgeUser(TestCase):
                   "avatar_url": None,
                   "updated_at": "2019-05-14T15:12:37.502-07:00",
                   "deleted_at": None,
-                  "unsubscribed": None,
+                  "unsubscribed": False,
                   "welcomedAt": None,
                   "loggedInAt": "2019-05-14T10:17:34.757-07:00",
-                  "passwordIsSet":False,
+                  "passwordIsSet":True,
                   "hire_date": None,
                   "is_manager":False,
                   "job_title": "Software Engineer",
@@ -260,6 +260,10 @@ class TestBridgeUser(TestCase):
         user_list = TestBridgeUser.users.get_all_users(role_id='author')
         self.assertEqual(len(user_list), 1)
         self.assertEqual(user_list[0].bridge_id, 195)
+        self.assertEqual(len(user_list[0].roles), 3)
+        self.assertTrue(user_list[0].roles[0].is_account_admin())
+        self.assertTrue(user_list[0].roles[1].is_author())
+        self.assertTrue(user_list[0].roles[2].is_campus_admin())
 
     def test_add_user(self):
         regid = "12345678901234567890123456789012"

@@ -63,7 +63,7 @@ class BridgeUser(models.Model):
     deleted_at = models.DateTimeField(null=True, default=None)
     logged_in_at = models.DateTimeField(null=True, default=None)
     updated_at = models.DateTimeField(null=True, default=None)
-    unsubscribed = models.CharField(max_length=128, null=True, default=None)
+    unsubscribed = models.NullBooleanField(default=None)
     next_due_date = models.DateTimeField(null=True, default=None)
     completed_courses_count = models.IntegerField(default=-1)
 
