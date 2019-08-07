@@ -260,6 +260,10 @@ class TestBridgeUser(TestCase):
         user_list = TestBridgeUser.users.get_all_users(role_id='author')
         self.assertEqual(len(user_list), 1)
         self.assertEqual(user_list[0].bridge_id, 195)
+        self.assertEqual(len(user_list[0].roles), 3)
+        self.assertTrue(user_list[0].roles[0].is_account_admin())
+        self.assertTrue(user_list[0].roles[1].is_author())
+        self.assertTrue(user_list[0].roles[2].is_campus_admin())
 
     def test_add_user(self):
         regid = "12345678901234567890123456789012"

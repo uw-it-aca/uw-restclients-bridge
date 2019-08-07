@@ -222,9 +222,9 @@ class Users:
         Return a BridgeUser object
         """
         if bridge_user.has_bridge_id():
-            url = author_id_url(bridge_user.bridge_id)
+            url = admin_id_url(bridge_user.bridge_id)
         else:
-            url = author_uid_url(bridge_user.netid)
+            url = admin_uid_url(bridge_user.netid)
         url = "{0}/roles/batch".format(url)
         body = json.dumps({"roles": bridge_user.roles_to_json()})
         resp = put_resource(url, body)
@@ -260,44 +260,49 @@ class Users:
         # a dict of {custom_field_value_id: BridgeCustomField}
 
         for user_data in resp_data.get("users"):
-            user = BridgeUser(
-                bridge_id=int(user_data["id"]),
-                netid=re.sub('@uw.edu', '', user_data["uid"]),
-                email=user_data.get("email", ""),
-                full_name=user_data.get("full_name", ""),
-                first_name=user_data.get("first_name", None),
-                last_name=user_data.get("last_name", None),
-                department=user_data.get("department", None),
-                job_title=user_data.get("job_title", None),
-                locale=user_data.get("locale", "en"),
-                is_manager=user_data.get("is_manager", None),
-                deleted_at=parse_date(user_data.get("deleted_at")),
-                logged_in_at=parse_date(user_data.get("loggedInAt")),
-                updated_at=parse_date(user_data.get("updated_at")),
-                unsubscribed=parse_date(user_data.get("unsubscribed", None)),
-                next_due_date=parse_date(user_data.get("next_due_date")),
-                completed_courses_count=user_data.get(
-                    "completed_courses_count", -1))
+            try:
+                user = BridgeUser(
+                    bridge_id=int(user_data["id"]),
+                    netid=re.sub('@uw.edu', '', user_data["uid"]),
+                    email=user_data.get("email", ""),
+                    full_name=user_data.get("full_name", ""),
+                    first_name=user_data.get("first_name", None),
+                    last_name=user_data.get("last_name", None),
+                    department=user_data.get("department", None),
+                    job_title=user_data.get("job_title", None),
+                    locale=user_data.get("locale", "en"),
+                    is_manager=user_data.get("is_manager", None),
+                    deleted_at=parse_date(user_data.get("deleted_at")),
+                    logged_in_at=parse_date(user_data.get("loggedInAt")),
+                    updated_at=parse_date(user_data.get("updated_at")),
+                    unsubscribed=parse_date(user_data.get("unsubscribed")),
+                    next_due_date=parse_date(user_data.get("next_due_date")),
+                    completed_courses_count=user_data.get(
+                        "completed_courses_count", -1))
 
-            if user_data.get("manager_id") is not None:
-                user.manager_id = int(user_data["manager_id"])
+                if user_data.get("manager_id") is not None:
+                    user.manager_id = int(user_data["manager_id"])
 
-            if (user_data.get("links") is not None and
-                    len(user_data["links"]) > 0 and
-                    "custom_field_values" in user_data["links"]):
-                values = user_data["links"]["custom_field_values"]
-                for custom_field_value in values:
-                    if custom_field_value in custom_fields_value_dict:
-                        custom_field = custom_fields_value_dict[
-                            custom_field_value]
-                        user.custom_fields[custom_field.name] = custom_field
+                if (user_data.get("links") is not None and
+                        len(user_data["links"]) > 0 and
+                        "custom_field_values" in user_data["links"]):
+                    values = user_data["links"]["custom_field_values"]
+                    for custom_field_value in values:
+                        if custom_field_value in custom_fields_value_dict:
+                            custom_field = custom_fields_value_dict[
+                                custom_field_value]
+                            user.custom_fields[custom_field.name] =\
+                                custom_field
 
-            if user_data.get("roles") is not None:
-                for role_data in user_data["roles"]:
-                    user.roles.append(
-                        self.user_roles.new_user_role_by_id(role_data))
-            bridge_users.append(user)
+                if user_data.get("roles") is not None:
+                    for role_data in user_data["roles"]:
+                        user.roles.append(
+                            self.user_roles.new_user_role_by_id(role_data))
+                bridge_users.append(user)
+            except Exception as err:
+                logger.error("{0} in {1}".format(str(err), user_data))
         return bridge_users
+
 
     def _get_custom_fields_dict(self, linked_data):
         """

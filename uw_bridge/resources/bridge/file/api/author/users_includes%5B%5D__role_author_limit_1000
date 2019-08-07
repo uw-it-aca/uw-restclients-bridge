@@ -1,25 +1,6 @@
 {
   "meta":{},
-   "linked":{
-       "custom_fields": [
-       {
-        "id": "5",
-        "name": "REGID"
-      }
-      ],
-    "custom_field_values": [
-      {
-        "id": "1",
-        "value": "9136CCB8F66711D5BE060004AC494FFE",
-        "links": {
-          "custom_field": {
-            "id": "5",
-            "type": "custom_fields"
-          }
-        }
-      }
-    ]
-   },
+   "linked":{},
    "users":[
        {"id":"195",
        "uid":"javerage@uw.edu",
@@ -38,9 +19,7 @@
        "unsubscribed":null,
        "welcomedAt":null,
        "loggedInAt":null,
-       "links":{
-          "custom_field_values":["1"]
-       },
+       "links":{},
        "meta":{"can_masquerade":true}
        }
 ]}
