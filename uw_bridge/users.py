@@ -303,7 +303,6 @@ class Users:
                 logger.error("{0} in {1}".format(str(err), user_data))
         return bridge_users
 
-
     def _get_custom_fields_dict(self, linked_data):
         """
         :except KeyError:
