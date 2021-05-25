@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 """
 Interacte with Bridge custom_fields API.
 You only need a single CustomFields object in your app.
