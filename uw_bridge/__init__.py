@@ -1,3 +1,6 @@
+# Copyright 2021 UW-IT, University of Washington
+# SPDX-License-Identifier: Apache-2.0
+
 """
 This module directly interacts with Bridge web services on
 It will log the https requests and responses.
