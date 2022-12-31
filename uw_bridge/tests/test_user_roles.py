@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
+from uw_bridge import Bridge
 from uw_bridge.models import BridgeUserRole
 from uw_bridge.user_roles import UserRoles
 from uw_bridge.tests import fdao_bridge_override
@@ -11,7 +12,7 @@ from uw_bridge.tests import fdao_bridge_override
 class TestBridgeUserRoles(TestCase):
 
     def test_userroles(self):
-        cfs = UserRoles()
+        cfs = UserRoles(Bridge())
         self.assertEqual(len(cfs.get_roles()), 5)
         roles = cfs.get_roles()
         self.assertTrue(roles[0].is_account_admin())

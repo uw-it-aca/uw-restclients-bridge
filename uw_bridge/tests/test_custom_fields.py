@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
+from uw_bridge import Bridge
 from uw_bridge.models import BridgeCustomField
 from uw_bridge.custom_fields import CustomFields
 from uw_bridge.tests import fdao_bridge_override
@@ -11,7 +12,7 @@ from uw_bridge.tests import fdao_bridge_override
 class TestBridgeCustomFields(TestCase):
 
     def test_customfields(self):
-        cfs = CustomFields()
+        cfs = CustomFields(Bridge())
         self.assertEqual(len(cfs.get_fields()), 17)
 
         self.assertEqual(cfs.get_field_id(

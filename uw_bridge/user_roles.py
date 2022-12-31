@@ -9,7 +9,6 @@ You only need a single UserRoles object in your app.
 import logging
 import json
 from uw_bridge.models import BridgeUserRole
-from uw_bridge import get_resource
 
 
 logger = logging.getLogger(__name__)
@@ -18,14 +17,15 @@ URL = "/api/author/roles"
 
 class UserRoles:
 
-    def __init__(self):
+    def __init__(self, bridge):
+        self.bridge = bridge
         self.roles = []
         self.id_name_map = {}
         self.name_ip_map = {}
         self.get_user_roles()
 
     def get_user_roles(self):
-        resp = get_resource(URL)
+        resp = self.bridge.get_resource(URL)
         resp_data = json.loads(resp)
         if resp_data.get("roles") is not None:
             for role in resp_data["roles"]:

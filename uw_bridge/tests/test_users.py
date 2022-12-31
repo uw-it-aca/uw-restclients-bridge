@@ -5,20 +5,16 @@ from unittest import TestCase
 from restclients_core.exceptions import DataFailureException
 from uw_bridge.models import BridgeUser, BridgeCustomField
 from uw_bridge.users import (
-    Users, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX, admin_id_url,
+    BridgeAccounts, ADMIN_URL_PREFIX, AUTHOR_URL_PREFIX, admin_id_url,
     author_id_url, admin_uid_url, author_uid_url,
     includes_to_query_params, get_all_users_url, restore_user_url)
 from uw_bridge.tests import fdao_bridge_override
 
 
 @fdao_bridge_override
-class TestBridgeUser(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        TestBridgeUser.users = Users()
-        TestBridgeUser.includes = ['custom_fields',
-                                   'course_summary', 'manager']
+class TestBridgeAccounts(TestCase):
+    bridge_accs = BridgeAccounts()
+    includes = ['custom_fields', 'course_summary', 'manager']
 
     def test_admin_id_url(self):
         self.assertEqual(admin_id_url(None), ADMIN_URL_PREFIX)
@@ -40,7 +36,7 @@ class TestBridgeUser(TestCase):
 
     def test_includes_to_query_params(self):
         self.assertEqual(
-            includes_to_query_params(TestBridgeUser.includes),
+            includes_to_query_params(self.includes),
             "includes%5B%5D=custom_fields&includes%5B%5D=" +
             "course_summary&includes%5B%5D=manager")
 
@@ -67,7 +63,7 @@ class TestBridgeUser(TestCase):
     def test_get_obj_from_list(self):
         users = []
         self.assertIsNone(
-            TestBridgeUser.users._get_obj_from_list("test", users))
+            self.bridge_accs._get_obj_from_list("test", users))
 
         users.append(BridgeUser(netid="eight",
                                 full_name="Eight Class Student",
@@ -80,11 +76,11 @@ class TestBridgeUser(TestCase):
                                 last_name="Student",
                                 email="eight1@uw.edu"))
         self.assertIsNotNone(
-            TestBridgeUser.users._get_obj_from_list("test", users))
+            self.bridge_accs._get_obj_from_list("test", users))
 
     def test_process_apage(self):
         bridge_users = []
-        bridge_users = TestBridgeUser.users._process_apage(
+        bridge_users = self.bridge_accs._process_apage(
             {"meta": {},
              "linked": {
                  "custom_fields": [{"id": "9",
@@ -148,15 +144,15 @@ class TestBridgeUser(TestCase):
                      'id': '754517'}]}})
 
     def test_process_err(self):
-        self.assertEqual(len(TestBridgeUser.users._process_apage(
+        self.assertEqual(len(self.bridge_accs._process_apage(
             {"meta": {}, "linked": {}, "users": []}, [])), 0)
 
-        bridge_users = TestBridgeUser.users._process_json_resp_data(
+        bridge_users = self.bridge_accs._process_json_resp_data(
             b'{"linked": {"custom_fields": [],"custom_field_values": []}}')
         self.assertEqual(len(bridge_users), 0)
 
     def test_get_user(self):
-        user = TestBridgeUser.users.get_user('javerage')
+        user = self.bridge_accs.get_user('javerage')
         self.assertEqual(user.bridge_id, 195)
         self.assertEqual(user.first_name, "James")
         self.assertEqual(user.last_name, "Student")
@@ -208,9 +204,9 @@ class TestBridgeUser(TestCase):
         self.assertIsNotNone(str(user))
 
     def test_get_user_with_deleted(self):
-        self.assertIsNone(TestBridgeUser.users.get_user_by_id(17637))
+        self.assertIsNone(self.bridge_accs.get_user_by_id(17637))
 
-        user = TestBridgeUser.users.get_user_by_id(17637, include_deleted=True)
+        user = self.bridge_accs.get_user_by_id(17637, include_deleted=True)
         self.verify_bill(user)
         self.assertTrue(user.is_deleted())
         self.assertTrue(user.has_manager())
@@ -220,10 +216,10 @@ class TestBridgeUser(TestCase):
                          "FBB38FE46A7C11D5A4AE0004AC494FFE")
 
         self.assertRaises(DataFailureException,
-                          TestBridgeUser.users.get_user, 'unknown')
+                          self.bridge_accs.get_user, 'unknown')
 
         self.assertRaises(DataFailureException,
-                          TestBridgeUser.users.get_user_by_id, 19567)
+                          self.bridge_accs.get_user_by_id, 19567)
 
     def verify_bill(self, user):
         self.assertEqual(user.bridge_id, 17637)
@@ -237,7 +233,7 @@ class TestBridgeUser(TestCase):
         self.assertTrue(user.is_manager)
 
     def test_get_alluser(self):
-        user_list = TestBridgeUser.users.get_all_users(
+        user_list = self.bridge_accs.get_all_users(
             includes=['custom_fields'])
         self.assertEqual(len(user_list), 3)
         user = user_list[0]
@@ -255,12 +251,12 @@ class TestBridgeUser(TestCase):
         user = user_list[2]
         self.assertEqual(user.bridge_id, 17)
 
-        user_list = TestBridgeUser.users.get_all_users()
+        user_list = self.bridge_accs.get_all_users()
         self.assertEqual(len(user_list), 3)
         user = user_list[0]
         self.assertFalse(user.has_custom_field())
 
-        user_list = TestBridgeUser.users.get_all_users(role_id='author')
+        user_list = self.bridge_accs.get_all_users(role_id='author')
         self.assertEqual(len(user_list), 1)
         self.assertEqual(user_list[0].bridge_id, 195)
         self.assertEqual(len(user_list[0].roles), 3)
@@ -270,7 +266,7 @@ class TestBridgeUser(TestCase):
 
     def test_add_user(self):
         regid = "12345678901234567890123456789012"
-        cus_fie = TestBridgeUser.users.custom_fields.new_custom_field(
+        cus_fie = self.bridge_accs.custom_fields.new_custom_field(
             BridgeCustomField.REGID_NAME, regid)
 
         user = BridgeUser()
@@ -281,7 +277,7 @@ class TestBridgeUser(TestCase):
         user.email = "eight@uw.edu"
         user.custom_fields[cus_fie.name] = cus_fie
 
-        added = TestBridgeUser.users.add_user(user)
+        added = self.bridge_accs.add_user(user)
         self.assertEqual(added.bridge_id, 123)
         self.assertEqual(added.first_name, "Eight Class")
         self.assertEqual(added.last_name, "Student")
@@ -294,31 +290,31 @@ class TestBridgeUser(TestCase):
             str(added.updated_at), '2016-09-06 21:42:48.821000-07:00')
 
     def test_delete_user(self):
-        self.assertTrue(TestBridgeUser.users.delete_user("javerage"))
-        self.assertTrue(TestBridgeUser.users.delete_user_by_id(195))
+        self.assertTrue(self.bridge_accs.delete_user("javerage"))
+        self.assertTrue(self.bridge_accs.delete_user_by_id(195))
         try:
-            reps = TestBridgeUser.users.delete_user("staff")
+            reps = self.bridge_accs.delete_user("staff")
         except Exception as ex:
             self.assertEqual(ex.status, 404)
 
     def test_upd_uid_req_body(self):
-        self.assertEqual(TestBridgeUser.users._upd_uid_req_body("netid"),
+        self.assertEqual(self.bridge_accs._upd_uid_req_body("netid"),
                          '{"user":{"uid":"netid@uw.edu"}}')
 
     def test_change_uid(self):
         self.assertRaises(DataFailureException,
-                          TestBridgeUser.users.change_uid,
+                          self.bridge_accs.change_uid,
                           195, "bill")
 
-        user = TestBridgeUser.users.change_uid(17637, "bill")
+        user = self.bridge_accs.change_uid(17637, "bill")
         self.verify_uid(user)
         self.assertEqual(len(user.custom_fields), 0)
 
-        user = TestBridgeUser.users.replace_uid("bill", "bill")
+        user = self.bridge_accs.replace_uid("bill", "bill")
         self.verify_uid(user)
         self.assertEqual(len(user.custom_fields), 0)
 
-        user = TestBridgeUser.users.replace_uid("oldbill", "bill")
+        user = self.bridge_accs.replace_uid("oldbill", "bill")
         self.verify_uid(user)
         self.assertEqual(len(user.custom_fields), 1)
         cus_field = user.get_custom_field(BridgeCustomField.REGID_NAME)
@@ -327,14 +323,14 @@ class TestBridgeUser(TestCase):
 
     def test_restore_user(self):
         self.assertRaises(DataFailureException,
-                          TestBridgeUser.users.restore_user_by_id,
+                          self.bridge_accs.restore_user_by_id,
                           195)
 
         self.assertRaises(DataFailureException,
-                          TestBridgeUser.users.restore_user,
+                          self.bridge_accs.restore_user,
                           'javerage')
 
-        user = TestBridgeUser.users.restore_user_by_id(17637)
+        user = self.bridge_accs.restore_user_by_id(17637)
         self.verify_uid(user)
         self.assertEqual(len(user.custom_fields), 1)
         cus_fie = user.get_custom_field(BridgeCustomField.REGID_NAME)
@@ -342,7 +338,7 @@ class TestBridgeUser(TestCase):
                          "FBB38FE46A7C11D5A4AE0004AC494FFE")
         self.assertTrue(user.has_manager())
 
-        user = TestBridgeUser.users.restore_user("bill")
+        user = self.bridge_accs.restore_user("bill")
         self.verify_uid(user)
         self.assertTrue(user.has_manager())
         cus_fie = user.get_custom_field(BridgeCustomField.REGID_NAME)
@@ -350,9 +346,9 @@ class TestBridgeUser(TestCase):
                          "FBB38FE46A7C11D5A4AE0004AC494FFE")
 
     def test_update_user(self):
-        orig_user = TestBridgeUser.users.get_user_by_id(17637,
-                                                        include_deleted=True)
-        upded_user = TestBridgeUser.users.update_user(orig_user)
+        orig_user = self.bridge_accs.get_user_by_id(17637,
+                                                    include_deleted=True)
+        upded_user = self.bridge_accs.update_user(orig_user)
         self.verify_bill(upded_user)
         self.assertFalse(upded_user.has_custom_field())
         self.assertFalse(upded_user.is_deleted())
@@ -364,26 +360,26 @@ class TestBridgeUser(TestCase):
                           last_name='Teacher',
                           email='bill@u.washington.edu',
                           full_name='Bill Average Teacher')
-        upded_user = TestBridgeUser.users.update_user(user)
+        upded_user = self.bridge_accs.update_user(user)
         self.verify_bill(upded_user)
         self.assertFalse(upded_user.has_custom_field())
 
-        orig_user = TestBridgeUser.users.get_user('javerage')
+        orig_user = self.bridge_accs.get_user('javerage')
         self.assertRaises(DataFailureException,
-                          TestBridgeUser.users.update_user, orig_user)
+                          self.bridge_accs.update_user, orig_user)
 
     def verify_uid(self, user):
         self.assertEqual(user.bridge_id, 17637)
         self.assertEqual(user.get_uid(), "bill@uw.edu")
 
     def test_update_user_roles(self):
-        buser = TestBridgeUser.users.get_user_by_id(17637,
-                                                    include_deleted=True)
-        author_role = TestBridgeUser.users.user_roles.new_author_role()
+        buser = self.bridge_accs.get_user_by_id(17637,
+                                                include_deleted=True)
+        author_role = self.bridge_accs.user_roles.new_author_role()
         buser.add_role(author_role)
-        admin_role = TestBridgeUser.users.user_roles.new_campus_admin_role()
+        admin_role = self.bridge_accs.user_roles.new_campus_admin_role()
         buser.add_role(admin_role)
-        upded_user = TestBridgeUser.users.update_user_roles(buser)
+        upded_user = self.bridge_accs.update_user_roles(buser)
         self.verify_bill(upded_user)
         self.assertTrue(author_role in upded_user.roles)
         self.assertTrue(admin_role in upded_user.roles)
@@ -391,10 +387,10 @@ class TestBridgeUser(TestCase):
         self.assertFalse(author_role in buser.roles)
 
         buser.bridge_id = 0
-        upded_user = TestBridgeUser.users.update_user_roles(buser)
+        upded_user = self.bridge_accs.update_user_roles(buser)
         self.assertTrue(author_role in upded_user.roles)
         self.assertTrue(admin_role in upded_user.roles)
 
         buser.bridge_id = 1
         self.assertRaises(DataFailureException,
-                          TestBridgeUser.users.update_user_roles, buser)
+                          self.bridge_accs.update_user_roles, buser)

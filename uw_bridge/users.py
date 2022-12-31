@@ -9,13 +9,11 @@ You only need a single Users object in your app.
 import json
 import logging
 import re
-from restclients_core.exceptions import InvalidNetID
-from uw_bridge.models import BridgeUser, BridgeCustomField, BridgeUserRole
 from uw_bridge.custom_fields import CustomFields
+from uw_bridge.models import BridgeUser
 from uw_bridge.user_roles import UserRoles
 from uw_bridge.util import parse_date
-from uw_bridge import (
-    delete_resource, get_resource, patch_resource, post_resource, put_resource)
+from uw_bridge import Bridge
 
 
 logger = logging.getLogger(__name__)
@@ -76,11 +74,12 @@ def restore_user_url(base_url):
                                 includes_to_query_params(RESTORE_INCLUDES))
 
 
-class Users:
+class BridgeAccounts(Bridge):
 
     def __init__(self):
-        self.custom_fields = CustomFields()
-        self.user_roles = UserRoles()
+        super(BridgeAccounts, self).__init__()
+        self.custom_fields = CustomFields(self)
+        self.user_roles = UserRoles(self)
 
     def add_user(self, bridge_user):
         """
@@ -90,7 +89,7 @@ class Users:
         """
         url = admin_uid_url(None)
         body = json.dumps(bridge_user.to_json_post(), separators=(',', ':'))
-        resp = post_resource(url, body)
+        resp = self.post_resource(url, body)
         return self._get_obj_from_list("add_user ({0})".format(bridge_user),
                                        self._process_json_resp_data(resp))
 
@@ -106,7 +105,7 @@ class Users:
         Return a BridgeUser object
         """
         url = author_id_url(bridge_id)
-        resp = patch_resource(url, self._upd_uid_req_body(new_uwnetid))
+        resp = self.patch_resource(url, self._upd_uid_req_body(new_uwnetid))
         return self._get_obj_from_list("change_uid({0})".format(new_uwnetid),
                                        self._process_json_resp_data(resp))
 
@@ -118,7 +117,7 @@ class Users:
         Return a BridgeUser object
         """
         url = author_uid_url(old_uwnetid)
-        resp = patch_resource(url, self._upd_uid_req_body(new_uwnetid))
+        resp = self.patch_resource(url, self._upd_uid_req_body(new_uwnetid))
         return self._get_obj_from_list(
             "replace_uid({0}->{1})".format(old_uwnetid, new_uwnetid),
             self._process_json_resp_data(resp))
@@ -128,7 +127,7 @@ class Users:
         Return True when the HTTP repsonse status is 204 -
         the user is deleted successfully
         """
-        resp = delete_resource(admin_uid_url(uwnetid))
+        resp = self.delete_resource(admin_uid_url(uwnetid))
         return resp.status == 204
 
     def delete_user_by_id(self, bridge_id):
@@ -137,7 +136,7 @@ class Users:
         Return True when the HTTP repsonse status is 204 -
         the user is deleted successfully
         """
-        resp = delete_resource(admin_id_url(bridge_id))
+        resp = self.delete_resource(admin_id_url(bridge_id))
         return resp.status == 204
 
     def get_user(self, uwnetid):
@@ -146,7 +145,7 @@ class Users:
         """
         url = "{0}?{1}".format(author_uid_url(uwnetid),
                                includes_to_query_params(GET_USER_INCLUDES))
-        resp = get_resource(url)
+        resp = self.get_resource(url)
         return self._get_obj_from_list(
             "get_user by netid('{0}')".format(uwnetid),
             self._process_json_resp_data(resp))
@@ -164,7 +163,7 @@ class Users:
         if include_deleted:
             url = "{0}&{1}".format(url, "with_deleted=true")
 
-        resp = get_resource(url)
+        resp = self.get_resource(url)
         return self._get_obj_from_list(
             "get_user by bridge_id('{0}')".format(bridge_id),
             self._process_json_resp_data(resp))
@@ -176,7 +175,7 @@ class Users:
          Valid value is one of 'account_admin', 'admin', 'author', etc
         Return a list of BridgeUser objects of the active user records.
         """
-        resp = get_resource(get_all_users_url(includes, role_id))
+        resp = self.get_resource(get_all_users_url(includes, role_id))
         return self._process_json_resp_data(resp)
 
     def restore_user(self, uwnetid):
@@ -186,7 +185,7 @@ class Users:
         Return a BridgeUser object
         """
         url = restore_user_url(author_uid_url(uwnetid))
-        resp = post_resource(url, '{}')
+        resp = self.post_resource(url, '{}')
         return self._get_obj_from_list(
             "restore_user by netid({0})".format(uwnetid),
             self._process_json_resp_data(resp))
@@ -199,7 +198,7 @@ class Users:
         return a BridgeUser object
         """
         url = restore_user_url(author_id_url(bridge_id))
-        resp = post_resource(url, '{}')
+        resp = self.post_resource(url, '{}')
         return self._get_obj_from_list(
             "restore_user by bridge_id({0})".format(bridge_id),
             self._process_json_resp_data(resp))
@@ -214,7 +213,7 @@ class Users:
         else:
             url = author_uid_url(bridge_user.netid)
         body = json.dumps(bridge_user.to_json_patch(), separators=(',', ':'))
-        resp = patch_resource(url, body)
+        resp = self.patch_resource(url, body)
         return self._get_obj_from_list(
             "update_user ({0})".format(bridge_user.to_json()),
             self._process_json_resp_data(resp))
@@ -230,7 +229,7 @@ class Users:
             url = admin_uid_url(bridge_user.netid)
         url = "{0}/roles/batch".format(url)
         body = json.dumps({"roles": bridge_user.roles_to_json()})
-        resp = put_resource(url, body)
+        resp = self.put_resource(url, body)
         return self._get_obj_from_list(
             "update_user_roles {0}, {1}".format(bridge_user.netid, body),
             self._process_json_resp_data(resp))
@@ -254,7 +253,7 @@ class Users:
 
             if link_url is None:
                 break
-            resp = get_resource(link_url)
+            resp = self.get_resource(link_url)
         return bridge_users
 
     def _process_apage(self, resp_data, bridge_users):
