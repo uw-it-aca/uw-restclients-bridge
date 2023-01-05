@@ -1,4 +1,4 @@
-# Copyright 2022 UW-IT, University of Washington
+# Copyright 2023 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 """
@@ -9,23 +9,23 @@ You only need a single CustomFields object in your app.
 import logging
 import json
 from uw_bridge.models import BridgeCustomField
-from uw_bridge import get_resource
 
 
 logger = logging.getLogger(__name__)
 URL = "/api/author/custom_fields"
 
 
-class CustomFields:
+class CustomFields(object):
 
-    def __init__(self):
+    def __init__(self, bridge):
+        self.bridge = bridge
         self.fields = []
         self.name_id_map = {}
         self.id_name_map = {}
         self.get_custom_fields()
 
     def get_custom_fields(self):
-        resp = get_resource(URL)
+        resp = self.bridge.get_resource(URL)
         resp_data = json.loads(resp)
         for field in resp_data["custom_fields"]:
             if field.get("id") is not None and field.get("name") is not None:
