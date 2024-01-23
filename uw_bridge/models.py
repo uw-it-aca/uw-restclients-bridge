@@ -122,11 +122,11 @@ class BridgeUser(models.Model):
         return len(self.custom_fields.keys()) > 0
 
     def to_json(self, omit_custom_fields=False):
-        ret_user = {"uid": self.get_uid(),
-                    "full_name": self.full_name,
-                    "email": self.email,
-                    "hired_at": date_to_str(self.hired_at),
-                    }
+        ret_user = {
+            "uid": self.get_uid(),
+            "full_name": self.full_name,
+            "email": self.email,
+            }
 
         if self.has_bridge_id():
             ret_user["id"] = self.bridge_id
@@ -143,6 +143,9 @@ class BridgeUser(models.Model):
         if self.department is not None:
             ret_user["department"] = self.department
 
+        if self.hired_at is not None:
+            ret_user["hired_at"] = date_to_str(self.hired_at)
+
         if self.job_title is not None:
             ret_user["job_title"] = self.job_title
 
@@ -152,7 +155,7 @@ class BridgeUser(models.Model):
             ret_user["manager_id"] = "uid:{0}@uw.edu".format(
                 self.manager_netid)
         else:
-            ret_user["manager_id"] = None
+            pass
 
         return ret_user
 
