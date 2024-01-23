@@ -77,7 +77,6 @@ class TestBridgeModel(TestCase):
              'last_name': 'Student',
              'department': "XYZ",
              'job_title': "y",
-             'manager_id': None,
              'sortable_name': 'Student, Iam A',
              'uid': 'iamstudent@uw.edu'})
 
@@ -114,7 +113,7 @@ class TestBridgeModel(TestCase):
              {'value': '123456789',
               'custom_field_id': '6',
               'id': '2'}])
-
+        self.maxDiff = None
         user.bridge_id = 123
         self.assertEqual(
             user.to_json_patch(),
@@ -127,7 +126,6 @@ class TestBridgeModel(TestCase):
                 'full_name': 'Iam Student',
                 'sortable_name': 'Student, Iam A',
                 'department': 'XYZ',
-                'manager_id': None,
                 'job_title': 'y',
                 'custom_field_values': [
                     {'value': '12345678901234567890123456789012',
@@ -158,6 +156,7 @@ class TestBridgeModel(TestCase):
                     {'value': '123456789',
                      'custom_field_id': '6',
                      'id': '2'}]}]})
+        self.assertIsNotNone(str(user))
 
         user.update_custom_field(BridgeCustomField.REGID_NAME, None)
         self.assertIsNone(

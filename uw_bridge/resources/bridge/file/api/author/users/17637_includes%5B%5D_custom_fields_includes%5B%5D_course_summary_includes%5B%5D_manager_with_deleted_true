@@ -38,6 +38,7 @@
        "unsubscribed":null,
        "welcomedAt":"2016-08-08T13:58:20.635-07:00",
        "loggedInAt":"2016-08-08T13:58:20.635-07:00",
+       "hire_date": "2016-08-08T00:00:00-07:00",
        "is_manager":true,
        "manager_id": "195",
        "job_title":null,

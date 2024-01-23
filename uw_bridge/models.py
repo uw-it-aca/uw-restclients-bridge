@@ -3,6 +3,7 @@
 
 import json
 from restclients_core import models
+from uw_bridge.util import date_to_str
 
 
 class BridgeCustomField(models.Model):
@@ -59,6 +60,7 @@ class BridgeUser(models.Model):
     last_name = models.CharField(max_length=128, null=True, default=None)
     department = models.CharField(max_length=256, null=True, default=None)
     job_title = models.CharField(max_length=160, null=True, default=None)
+    hired_at = models.DateTimeField(null=True, default=None)
     is_manager = models.NullBooleanField(default=None)
     locale = models.CharField(max_length=2, default='en')
     manager_id = models.IntegerField(default=0)
@@ -120,10 +122,11 @@ class BridgeUser(models.Model):
         return len(self.custom_fields.keys()) > 0
 
     def to_json(self, omit_custom_fields=False):
-        ret_user = {"uid": self.get_uid(),
-                    "full_name": self.full_name,
-                    "email": self.email,
-                    }
+        ret_user = {
+            "uid": self.get_uid(),
+            "full_name": self.full_name,
+            "email": self.email,
+            }
 
         if self.has_bridge_id():
             ret_user["id"] = self.bridge_id
@@ -140,6 +143,9 @@ class BridgeUser(models.Model):
         if self.department is not None:
             ret_user["department"] = self.department
 
+        if self.hired_at is not None:
+            ret_user["hired_at"] = date_to_str(self.hired_at)
+
         if self.job_title is not None:
             ret_user["job_title"] = self.job_title
 
@@ -149,7 +155,7 @@ class BridgeUser(models.Model):
             ret_user["manager_id"] = "uid:{0}@uw.edu".format(
                 self.manager_netid)
         else:
-            ret_user["manager_id"] = None
+            pass
 
         return ret_user
 
@@ -173,9 +179,9 @@ class BridgeUser(models.Model):
 
     def __str__(self):
         json_data = self.to_json()
-        json_data["deleted_at"] = self.deleted_at
-        json_data["logged_in_at"] = self.logged_in_at
-        json_data["updated_at"] = self.updated_at
+        json_data["deleted_at"] = date_to_str(self.deleted_at)
+        json_data["logged_in_at"] = date_to_str(self.logged_in_at)
+        json_data["updated_at"] = date_to_str(self.updated_at)
         json_data["completed_courses_count"] = self.completed_courses_count
 
         if len(self.custom_fields):
