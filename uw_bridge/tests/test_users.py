@@ -1,4 +1,4 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from unittest import TestCase
@@ -110,7 +110,7 @@ class TestBridgeAccounts(TestCase):
                   "welcomedAt": None,
                   "loggedInAt": "2019-05-14T10:17:34.757-07:00",
                   "passwordIsSet": True,
-                  "hire_date": None,
+                  "hire_date": "2016-08-12T00:00:00.000-07:00",
                   "is_manager": False,
                   "job_title": "Software Engineer",
                   "bio": None,
@@ -125,6 +125,7 @@ class TestBridgeAccounts(TestCase):
                   "links": {"custom_field_values": ["754517"]}}]},
             bridge_users)
         user = bridge_users[0]
+        self.maxDiff = None
         self.assertEqual(
             user.to_json_patch(),
             {'user': {
@@ -137,6 +138,7 @@ class TestBridgeAccounts(TestCase):
                 'sortable_name': 'Smith, Bill',
                 'department': 'Unix Engineering',
                 'job_title': 'Software Engineer',
+                "hired_at": "2016-08-12T00:00:00-07:00",
                 'manager_id': 10,
                 "custom_field_values": [
                     {'value': '6B79E4406A7D1',
@@ -163,6 +165,7 @@ class TestBridgeAccounts(TestCase):
         self.assertEqual(user.netid, "javerage")
         self.assertEqual(user.get_uid(), "javerage@uw.edu")
         self.assertFalse(user.is_deleted())
+        self.assertIsNone(user.hired_at)
         self.assertEqual(
             str(user.updated_at), '2016-07-25 16:24:42.131000-07:00')
         self.assertEqual(
@@ -354,6 +357,8 @@ class TestBridgeAccounts(TestCase):
         self.assertFalse(upded_user.is_deleted())
         self.assertEqual(str(upded_user.updated_at),
                          '2016-09-08 13:58:20.635000-07:00')
+        self.assertEqual(str(upded_user.hired_at),
+                         '2016-08-12 00:00:00-07:00')
 
         user = BridgeUser(netid='bill',
                           first_name='Bill Average',

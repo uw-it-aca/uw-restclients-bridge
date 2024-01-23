@@ -1,4 +1,4 @@
-# Copyright 2023 UW-IT, University of Washington
+# Copyright 2024 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 from commonconf import override_settings
@@ -13,3 +13,8 @@ def parse_date(date_str):
     if date_str is not None:
         return parse(date_str)
     return None
+
+
+def date_to_str(dt):
+    # datetime.datetime.isoformat
+    return dt.isoformat() if dt is not None else None
