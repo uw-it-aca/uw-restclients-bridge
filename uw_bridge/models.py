@@ -176,10 +176,9 @@ class BridgeUser(models.Model):
 
     def __str__(self):
         json_data = self.to_json()
-        json_data["deleted_at"] = self.deleted_at
-        json_data["logged_in_at"] = self.logged_in_at
-        json_data["updated_at"] = self.updated_at
-        json_data["hired_at"] = self.hired_at
+        json_data["deleted_at"] = date_to_str(self.deleted_at)
+        json_data["logged_in_at"] = date_to_str(self.logged_in_at)
+        json_data["updated_at"] = date_to_str(self.updated_at)
         json_data["completed_courses_count"] = self.completed_courses_count
 
         if len(self.custom_fields):

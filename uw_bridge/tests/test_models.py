@@ -162,6 +162,7 @@ class TestBridgeModel(TestCase):
                     {'value': '123456789',
                      'custom_field_id': '6',
                      'id': '2'}]}]})
+        self.assertIsNotNone(str(user))
 
         user.update_custom_field(BridgeCustomField.REGID_NAME, None)
         self.assertIsNone(
