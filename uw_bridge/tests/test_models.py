@@ -40,6 +40,7 @@ class TestBridgeModel(TestCase):
                           'email': 'iamstudent@uw.edu',
                           'full_name': 'Iam Student',
                           'manager_id': "uid:mana@uw.edu",
+                          'hired_at': None,
                           'department': "XYZ",
                           'job_title': "y"})
 
@@ -77,6 +78,7 @@ class TestBridgeModel(TestCase):
              'last_name': 'Student',
              'department': "XYZ",
              'job_title': "y",
+             'hired_at': None,
              'manager_id': None,
              'sortable_name': 'Student, Iam A',
              'uid': 'iamstudent@uw.edu'})
@@ -114,7 +116,7 @@ class TestBridgeModel(TestCase):
              {'value': '123456789',
               'custom_field_id': '6',
               'id': '2'}])
-
+        self.maxDiff = None
         user.bridge_id = 123
         self.assertEqual(
             user.to_json_patch(),
@@ -127,6 +129,7 @@ class TestBridgeModel(TestCase):
                 'full_name': 'Iam Student',
                 'sortable_name': 'Student, Iam A',
                 'department': 'XYZ',
+                'hired_at': None,
                 'manager_id': None,
                 'job_title': 'y',
                 'custom_field_values': [
@@ -149,6 +152,7 @@ class TestBridgeModel(TestCase):
                 'full_name': 'Iam Student',
                 'sortable_name': 'Student, Iam A',
                 'department': 'XYZ',
+                'hired_at': None,
                 'job_title': 'y',
                 'manager_id': 1,
                 'custom_field_values': [

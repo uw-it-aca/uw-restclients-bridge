@@ -30,6 +30,8 @@
        "sortable_name":"Student, None Average",
        "email":"none@u.washington.edu",
        "locale":"en",
+       "hire_date": null,
+       "is_manager": false,
        "roles":[],
        "name":"None Average Student",
        "avatar_url":null,

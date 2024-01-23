@@ -3,6 +3,7 @@
 
 import json
 from restclients_core import models
+from uw_bridge.util import date_to_str
 
 
 class BridgeCustomField(models.Model):
@@ -59,6 +60,7 @@ class BridgeUser(models.Model):
     last_name = models.CharField(max_length=128, null=True, default=None)
     department = models.CharField(max_length=256, null=True, default=None)
     job_title = models.CharField(max_length=160, null=True, default=None)
+    hired_at = models.DateTimeField(null=True, default=None)
     is_manager = models.NullBooleanField(default=None)
     locale = models.CharField(max_length=2, default='en')
     manager_id = models.IntegerField(default=0)
@@ -123,6 +125,7 @@ class BridgeUser(models.Model):
         ret_user = {"uid": self.get_uid(),
                     "full_name": self.full_name,
                     "email": self.email,
+                    "hired_at": date_to_str(self.hired_at),
                     }
 
         if self.has_bridge_id():
@@ -176,6 +179,7 @@ class BridgeUser(models.Model):
         json_data["deleted_at"] = self.deleted_at
         json_data["logged_in_at"] = self.logged_in_at
         json_data["updated_at"] = self.updated_at
+        json_data["hired_at"] = self.hired_at
         json_data["completed_courses_count"] = self.completed_courses_count
 
         if len(self.custom_fields):

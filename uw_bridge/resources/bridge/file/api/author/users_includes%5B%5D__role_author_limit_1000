@@ -10,6 +10,8 @@
        "full_name":"James Student",
        "sortable_name":"Student, James",
        "email":"javerage@uw.edu",
+       "hire_date": null,
+       "is_manager": false,
        "locale":"en",
        "roles":["account_admin", "author", "fb412e52"],
        "name":"James Student",

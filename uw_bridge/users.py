@@ -273,6 +273,7 @@ class BridgeAccounts(Bridge):
                     department=user_data.get("department"),
                     job_title=user_data.get("job_title"),
                     locale=user_data.get("locale", "en"),
+                    hired_at=parse_date(user_data.get("hire_date")),
                     is_manager=user_data.get("is_manager"),
                     unsubscribed=user_data.get("unsubscribed"),
                     deleted_at=parse_date(user_data.get("deleted_at")),

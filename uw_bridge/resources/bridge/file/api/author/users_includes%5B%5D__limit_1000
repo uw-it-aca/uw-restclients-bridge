@@ -11,7 +11,6 @@
        "full_name":"Eight Class Student",
        "sortable_name":"Student, Eight Class",
        "email":"eight@uw.edu",
-       "is_manager":false,
        "locale":"en",
        "roles":[],
        "name":"Eight Class Student",
