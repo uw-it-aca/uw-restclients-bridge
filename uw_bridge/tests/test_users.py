@@ -138,7 +138,7 @@ class TestBridgeAccounts(TestCase):
                 'sortable_name': 'Smith, Bill',
                 'department': 'Unix Engineering',
                 'job_title': 'Software Engineer',
-                "hired_at": "2016-08-12T00:00:00-07:00",
+                "hire_date": "2016-08-12T00:00:00-07:00",
                 'manager_id': 10,
                 "custom_field_values": [
                     {'value': '6B79E4406A7D1',

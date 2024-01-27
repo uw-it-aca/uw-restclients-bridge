@@ -144,7 +144,7 @@ class BridgeUser(models.Model):
             ret_user["department"] = self.department
 
         if self.hired_at is not None:
-            ret_user["hired_at"] = date_to_str(self.hired_at)
+            ret_user["hire_date"] = date_to_str(self.hired_at)
 
         if self.job_title is not None:
             ret_user["job_title"] = self.job_title
