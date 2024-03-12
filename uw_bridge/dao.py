@@ -42,8 +42,7 @@ class Bridge_DAO(DAO):
             new_resp = backend.load(method, alternative_url, headers, body)
             response.status = new_resp.status
             response.data = new_resp.data
-            logger.debug("{0} ==>STATUS: {1:d}",
-                         alternative_url, response.status)
+            logger.debug(f"{alternative_url} ==> STATUS: {response.status}")
 
     def is_mock(self):
         return self.get_implementation().is_mock()
