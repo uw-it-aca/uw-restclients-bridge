@@ -1,7 +1,7 @@
 # REST client for the Bridge Web Service API
 # UW-Restclients-Bridge
 
-[![Build Status](https://github.com/uw-it-aca/uw-restclients-bridge/workflows/tests/badge.svg?branch=main)](https://github.com/uw-it-aca/uw-restclients-bridge/actions)
+[![Build Status](https://github.com/uw-it-aca/uw-restclients-bridge/workflows/tests/badge.svg)](https://github.com/uw-it-aca/uw-restclients-bridge/actions)
 [![Coverage Status](https://coveralls.io/repos/uw-it-aca/uw-restclients-bridge/badge.svg?branch=main)](https://coveralls.io/r/uw-it-aca/uw-restclients-bridge?branch=main)
 [![PyPi Version](https://img.shields.io/pypi/v/uw-restclients-bridge.svg)](https://pypi.python.org/pypi/uw-restclients-bridge)
 ![Python versions](https://img.shields.io/pypi/pyversions/uw-restclients-bridge.svg)
