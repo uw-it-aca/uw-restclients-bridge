@@ -1,4 +1,4 @@
-# Copyright 2024 UW-IT, University of Washington
+# Copyright 2025 UW-IT, University of Washington
 # SPDX-License-Identifier: Apache-2.0
 
 import os
@@ -20,11 +20,10 @@ setup(
     name='Uw-Restclients-Bridge',
     version=VERSION,
     packages=['uw_bridge'],
-    author="UW-IT T&LS",
+    author="UW-IT SETS",
     author_email="aca-it@uw.edu",
     include_package_data=True,
-    install_requires=['UW-RestClients-Core',
-                      'python-dateutil',
+    install_requires=['UW-RestClients-Core'
                      ],
     license='Apache License, Version 2.0',
     description=('A library for connecting to the Bridge API'),
